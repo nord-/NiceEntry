@@ -20,5 +20,10 @@
                               Date="{Binding DateSelected}"
                               MinimumDate="2025-05-01"
                               Error="{Binding ValidationErrors[DateSelected]}" />
+
+        <ne:LabeledTimePicker Label="Select a time"
+                              Time="{Binding TimeSelected}"
+                              IsRequired="True"
+                              Error="{Binding ValidationErrors[TimeSelected]}" />
     </VerticalStackLayout>
 </ContentPage>

@@ -24,6 +24,7 @@ public partial class MainViewModel : ValidatableViewModel
     private string _myProperty = "";
 
     [ObservableProperty] private DateTime? _dateSelected = DateTime.Today;
+    [ObservableProperty] private TimeSpan? _timeSelected = DateTime.Now.TimeOfDay;
 
     [RelayCommand]
     private async Task OnEnterPressed()
@@ -33,7 +34,7 @@ public partial class MainViewModel : ValidatableViewModel
         if (ValidationErrors.IsValid)
         {
             // show a toast with value of myProperty
-            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}");
+            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}, Time: {TimeSelected}");
             await toast.Show();
         }
     }

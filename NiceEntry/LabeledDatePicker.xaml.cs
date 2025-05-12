@@ -11,7 +11,7 @@ public partial class LabeledDatePicker
         Element.BindingContext = this;
 	}
     
-    public static readonly BindableProperty DateProperty = BindableProperty.Create(nameof(Date), typeof(DateTime), typeof(LabeledEntry), propertyChanged: DateChanged, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty DateProperty = BindableProperty.Create(nameof(Date), typeof(DateTime), typeof(LabeledDatePicker), propertyChanged: DateChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty MinimumDateProperty = BindableProperty.Create(nameof(MinimumDate), typeof(DateTime), typeof(LabeledDatePicker), DateTime.MinValue, propertyChanged: MinimumDateChanged);
     public static readonly BindableProperty MaximumDateProperty = BindableProperty.Create(nameof(MaximumDate), typeof(DateTime), typeof(LabeledDatePicker), DateTime.MaxValue, propertyChanged: MaximumDateChanged);
     

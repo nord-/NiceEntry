@@ -20,6 +20,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="LabeledTimePicker.xaml.cs">
+	    <DependentUpon>LabeledTimePicker.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="LabeledEntry.xaml.cs">
 	    <DependentUpon>LabeledEntry.xaml</DependentUpon>
 	  </Compile>
@@ -27,6 +30,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Base\LabelBase.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="LabeledTimePicker.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="LabeledDatePicker.xaml">
