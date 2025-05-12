@@ -9,17 +9,16 @@ public partial class LabeledPicker
 		InitializeComponent();
         
         Element.SetVisualElementBinding();
-        Element.SetBinding(Picker.ItemsSourceProperty, nameof(ItemSource), BindingMode.TwoWay);
+        Element.SetBinding(Picker.ItemsSourceProperty, nameof(ItemsSource), BindingMode.TwoWay);
         Element.SetBinding(Picker.SelectedIndexProperty, nameof(SelectedIndex), BindingMode.TwoWay);
         Element.SetBinding(Picker.SelectedItemProperty, nameof(SelectedItem), BindingMode.TwoWay);
         Element.BindingContext = this;
     }
     
-    public static readonly BindableProperty ItemSourceProperty = BindableProperty.Create(nameof(ItemSource), typeof(IList), typeof(LabeledPicker), propertyChanged: ItemSourceChanged, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(LabeledPicker), propertyChanged: ItemSourceChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), propertyChanged: SelectedIndexChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(LabeledPicker), propertyChanged: SelectedItemChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledPicker), propertyChanged: PlaceholderChanged);
-    public static readonly BindableProperty ItemDisplayBindingProperty = BindableProperty.Create(nameof(ItemDisplayBinding), typeof(BindingBase), typeof(LabeledPicker), propertyChanged: ItemDisplayBindingChanged);
 
     public int SelectedIndex
     {
@@ -39,27 +38,25 @@ public partial class LabeledPicker
         set => SetValue(PlaceholderProperty, value);
     }
 
-    public IList ItemSource
+    public IList ItemsSource
     {
-        get => (IList)GetValue(ItemSourceProperty);
-        set => SetValue(ItemSourceProperty, value);
+        get => (IList)GetValue(ItemsSourceProperty);
+        set => SetValue(ItemsSourceProperty, value);
     }
 
     public BindingBase ItemDisplayBinding
     {
-        get => (BindingBase)GetValue(ItemDisplayBindingProperty);
-        set => SetValue(ItemDisplayBindingProperty, value);
+        get => Element?.ItemDisplayBinding!;
+        set => Element.ItemDisplayBinding = value;
     }
 
     private static void ItemSourceChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateItemSourceView();
     private static void SelectedIndexChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateSelectedIndex();
     private static void SelectedItemChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateSelectedItem();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdatePlaceholder();
-    private static void ItemDisplayBindingChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateItemDisplayBinding();
     
-    private void UpdateItemSourceView() => Element.ItemsSource = ItemSource;
+    private void UpdateItemSourceView() => Element.ItemsSource = ItemsSource;
     private void UpdateSelectedIndex() => Element.SelectedIndex = SelectedIndex;
     private void UpdateSelectedItem() => Element.SelectedItem = SelectedItem;
     private void UpdatePlaceholder() => Element.Title = Placeholder;
-    private void UpdateItemDisplayBinding() => Element.ItemDisplayBinding = ItemDisplayBinding;
 }

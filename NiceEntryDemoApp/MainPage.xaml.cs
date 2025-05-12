@@ -42,10 +42,10 @@ public partial class MainViewModel : ValidatableViewModel
         if (ValidationErrors.IsValid)
         {
             // show a toast with value of myProperty
-            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}, Time: {TimeSelected}, Picked Item: {PickedItem?.Value ?? "null"} ({PickedItem?.Key ?? "null"})");
+            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}, Time: {TimeSelected}\nPicked Item: {PickedItem?.PickerValue ?? "null"} ({PickedItem?.PickerKey ?? "null"})");
             await toast.Show();
         }
     }
 }
 
-public record PickerItem(string Key, string Value);
+public record PickerItem(string PickerKey, string PickerValue);

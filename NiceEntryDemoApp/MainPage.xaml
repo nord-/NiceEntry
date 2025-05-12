@@ -30,9 +30,9 @@
         <ne:LabeledPicker Label="Select from list"
                           Placeholder="Select one"
                           IsRequired="True"
-                          ItemSource="{Binding Items}"
+                          ItemsSource="{Binding Items}"
                           SelectedItem="{Binding PickedItem}"
-                          ItemDisplayBinding="{Binding Value, x:DataType=demo:PickerItem}"
+                          ItemDisplayBinding="{Binding PickerValue, x:DataType=demo:PickerItem}"
                           Error="{Binding ValidationErrors[PickedItem]}" 
                           />
     </VerticalStackLayout>

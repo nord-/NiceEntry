@@ -20,7 +20,6 @@ Global
 		{B427E82B-1335-4F04-9E6E-31B5DDA21622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B427E82B-1335-4F04-9E6E-31B5DDA21622}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{B427E82B-1335-4F04-9E6E-31B5DDA21622}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B427E82B-1335-4F04-9E6E-31B5DDA21622}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
