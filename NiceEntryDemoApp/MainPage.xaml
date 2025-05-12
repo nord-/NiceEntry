@@ -24,6 +24,16 @@
         <ne:LabeledTimePicker Label="Select a time"
                               Time="{Binding TimeSelected}"
                               IsRequired="True"
-                              Error="{Binding ValidationErrors[TimeSelected]}" />
+                              Error="{Binding ValidationErrors[TimeSelected]}" 
+                              />
+
+        <ne:LabeledPicker Label="Select from list"
+                          Placeholder="Select one"
+                          IsRequired="True"
+                          ItemSource="{Binding Items}"
+                          SelectedItem="{Binding PickedItem}"
+                          ItemDisplayBinding="{Binding Value, x:DataType=demo:PickerItem}"
+                          Error="{Binding ValidationErrors[PickedItem]}" 
+                          />
     </VerticalStackLayout>
 </ContentPage>

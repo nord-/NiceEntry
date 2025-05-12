@@ -20,11 +20,19 @@ public partial class MainPage : ContentPage
 
 public partial class MainViewModel : ValidatableViewModel
 {
-    [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = $"{nameof(MyProperty)} is required"),MinLength(2, ErrorMessage = "Minimum 3 chars")] 
+    [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = $"{nameof(MyProperty)} is required"),MinLength(3, ErrorMessage = "Minimum 3 chars")] 
     private string _myProperty = "";
 
     [ObservableProperty] private DateTime? _dateSelected = DateTime.Today;
     [ObservableProperty] private TimeSpan? _timeSelected = DateTime.Now.TimeOfDay;
+    [ObservableProperty,Required(ErrorMessage = "You have to pick an item")] private PickerItem? _pickedItem;
+
+    public List<PickerItem> Items { get; set; } =
+    [
+        new PickerItem("1", "One"),
+        new PickerItem("2", "Two"),
+        new PickerItem("3", "Three")
+    ];
 
     [RelayCommand]
     private async Task OnEnterPressed()
@@ -34,8 +42,10 @@ public partial class MainViewModel : ValidatableViewModel
         if (ValidationErrors.IsValid)
         {
             // show a toast with value of myProperty
-            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}, Time: {TimeSelected}");
+            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}, Time: {TimeSelected}, Picked Item: {PickedItem?.Value ?? "null"} ({PickedItem?.Key ?? "null"})");
             await toast.Show();
         }
     }
 }
+
+public record PickerItem(string Key, string Value);

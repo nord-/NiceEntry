@@ -12,14 +12,19 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<Version>1.1.0</Version>
+		<Authors>Rickard Nord</Authors>
+		<Company>StorySoft</Company>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.60" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.60" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="LabeledPicker.xaml.cs">
+	    <DependentUpon>LabeledPicker.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="LabeledTimePicker.xaml.cs">
 	    <DependentUpon>LabeledTimePicker.xaml</DependentUpon>
 	  </Compile>
@@ -30,6 +35,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Base\LabelBase.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="LabeledPicker.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="LabeledTimePicker.xaml">
