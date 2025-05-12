@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ne="clr-namespace:NiceEntry;assembly=NiceEntry"
+             xmlns:demo="clr-namespace:NiceEntryDemoApp"
+             x:Class="NiceEntryDemoApp.MainPage" x:DataType="demo:MainViewModel">
+
+    <VerticalStackLayout Margin="16,32" Spacing="25">
+
+        <ne:LabeledEntry Label="First name or Last name"
+                         IsRequired="True"
+                         Placeholder="John Doe"
+                         Text="{Binding MyProperty}"
+                         Keyboard="Numeric"
+                         Error="{Binding ValidationErrors[MyProperty]}"
+                         ReturnCommand="{Binding EnterPressedCommand}" />
+
+    </VerticalStackLayout>
+</ContentPage>
