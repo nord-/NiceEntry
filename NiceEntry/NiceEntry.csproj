@@ -29,6 +29,9 @@
 	  <MauiXaml Update="Base\LabelBase.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="LabeledDatePicker.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="LabeledEntry.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

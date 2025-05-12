@@ -16,5 +16,9 @@
                          Error="{Binding ValidationErrors[MyProperty]}"
                          ReturnCommand="{Binding EnterPressedCommand}" />
 
+        <ne:LabeledDatePicker Label="Select a date"
+                              Date="{Binding DateSelected}"
+                              MinimumDate="2025-05-01"
+                              Error="{Binding ValidationErrors[DateSelected]}" />
     </VerticalStackLayout>
 </ContentPage>

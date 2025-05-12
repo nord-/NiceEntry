@@ -23,6 +23,8 @@ public partial class MainViewModel : ValidatableViewModel
     [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = $"{nameof(MyProperty)} is required"),MinLength(2, ErrorMessage = "Minimum 3 chars")] 
     private string _myProperty = "";
 
+    [ObservableProperty] private DateTime? _dateSelected = DateTime.Today;
+
     [RelayCommand]
     private async Task OnEnterPressed()
     {
@@ -31,7 +33,7 @@ public partial class MainViewModel : ValidatableViewModel
         if (ValidationErrors.IsValid)
         {
             // show a toast with value of myProperty
-            var toast = Toast.Make("MyProperty: " + MyProperty);
+            var toast = Toast.Make($"MyProperty: {MyProperty}, Date: {DateSelected:D}");
             await toast.Show();
         }
     }
