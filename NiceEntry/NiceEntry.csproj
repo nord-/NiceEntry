@@ -15,6 +15,14 @@
 		<Version>1.1.1</Version>
 		<Authors>Rickard Nord</Authors>
 		<Company>StorySoft</Company>
+		<IsPackable>true</IsPackable>
+		<PackageId>NiceEntry</PackageId>
+		<Description>Reusable labeled Entry/Picker/Date/Time controls for .NET MAUI.</Description>
+		<PackageTags>maui;controls;entry;picker</PackageTags>
+		<RepositoryUrl>https://github.com/nord-/NiceEntry</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageProjectUrl>https://github.com/nord-/NiceEntry</PackageProjectUrl>
+		<PackageOutputPath>$(MSBuildThisFileDirectory)..\nupkgs</PackageOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
