@@ -21,6 +21,7 @@ public partial class LabeledEntry
     public static readonly BindableProperty IsPasswordProperty = BindableProperty.Create(nameof(IsPassword), typeof(bool), typeof(LabeledEntry), false, propertyChanged: IsPasswordChanged);
     public static readonly BindableProperty IsReadOnlyProperty = BindableProperty.Create(nameof(IsReadOnly), typeof(bool), typeof(LabeledEntry), false, propertyChanged: IsReadOnlyChanged);
     public static readonly BindableProperty ReturnCommandProperty = BindableProperty.Create(nameof(ReturnCommand), typeof(ICommand), typeof(LabeledEntry), propertyChanged: ReturnCommandChanged);
+    public static readonly BindableProperty HorizontalTextAlignmentProperty = BindableProperty.Create(nameof(HorizontalTextAlignment), typeof(TextAlignment), typeof(LabeledEntry), TextAlignment.Start, propertyChanged: HorizontalTextAlignmentChanged);
 
     public string Text
     {
@@ -64,6 +65,12 @@ public partial class LabeledEntry
         set => SetValue(IsReadOnlyProperty, value);
     }
 
+    public TextAlignment HorizontalTextAlignment
+    {
+        get => (TextAlignment)GetValue(HorizontalTextAlignmentProperty);
+        set => SetValue(HorizontalTextAlignmentProperty, value);
+    }
+
     public ICommand ReturnCommand
     {
         get => (ICommand)GetValue(ReturnCommandProperty);
@@ -78,6 +85,7 @@ public partial class LabeledEntry
     private static void IsReadOnlyChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateIsReadOnlyView();
     private static void MaxLengthChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateMaxLengthView();
     private static void ReturnCommandChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateReturnCommandView();    
+    private static void HorizontalTextAlignmentChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateHorizontalTextAlignmentView();
     
     private void UpdateTextView() => Element.Text = Text;
     private void UpdatePlaceholderView() => Element.Placeholder = Placeholder;
@@ -87,4 +95,5 @@ public partial class LabeledEntry
     private void UpdateIsReadOnlyView() => Element.IsReadOnly = IsReadOnly;
     private void UpdateMaxLengthView() => Element.MaxLength = MaxLength;
     private void UpdateReturnCommandView() => Element.ReturnCommand = ReturnCommand;
+    private void UpdateHorizontalTextAlignmentView() => Element.HorizontalTextAlignment = HorizontalTextAlignment;
 }
