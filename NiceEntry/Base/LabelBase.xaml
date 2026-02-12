@@ -42,7 +42,7 @@
         <Style x:Key="LabelContainer" TargetType="HorizontalStackLayout">
             <Setter Property="VerticalOptions" Value="Start" />
             <Setter Property="HorizontalOptions" Value="Start" />
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
+
             <Setter Property="Margin" Value="8,-7,8,0" />
         </Style>
 
@@ -55,7 +55,7 @@
 </Grid.Resources>
 
     <Border x:Name="BorderLabel" Style="{StaticResource BaseBorderBasic}" Grid.Row="0" />
-    <HorizontalStackLayout Style="{StaticResource LabelContainer}">
+    <HorizontalStackLayout x:Name="LabelContainer" Style="{StaticResource LabelContainer}">
         <Label x:Name="RequiredLabel" Text="*" Style="{StaticResource BaseRequiredLabelLabel}" />
 
         <Label x:Name="LabelLabel" Style="{StaticResource BaseLabelLabel}" />
