@@ -7,10 +7,16 @@ public partial class LabeledEntry
     public LabeledEntry()
     {
         InitializeComponent();
-        
+
         Element.SetVisualElementBinding();
         Element.SetBinding(Entry.TextProperty, nameof(Text), BindingMode.TwoWay);
         Element.BindingContext = this;
+
+        Element.Focused += (_, _) =>
+        {
+            Element.CursorPosition = 0;
+            Element.SelectionLength = Element.Text?.Length ?? 0;
+        };
     }
     
     public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), propertyChanged: TextChanged, defaultBindingMode: BindingMode.TwoWay);
