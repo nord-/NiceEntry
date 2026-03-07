@@ -1,7 +1,21 @@
+#if IOS
+using Microsoft.Maui.Handlers;
+#endif
+
 namespace NiceEntry;
 
 public partial class LabeledTimePicker
 {
+    static LabeledTimePicker()
+    {
+#if IOS
+        TimePickerHandler.Mapper.AppendToMapping("NiceEntryTimePicker", (handler, _) =>
+        {
+            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+        });
+#endif
+    }
+
 	public LabeledTimePicker()
 	{
 		InitializeComponent();

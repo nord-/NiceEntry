@@ -1,9 +1,22 @@
 using System.Collections;
+#if IOS
+using Microsoft.Maui.Handlers;
+#endif
 
 namespace NiceEntry;
 
 public partial class LabeledPicker
 {
+    static LabeledPicker()
+    {
+#if IOS
+        PickerHandler.Mapper.AppendToMapping("NiceEntryPicker", (handler, _) =>
+        {
+            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+        });
+#endif
+    }
+
 	public LabeledPicker()
 	{
 		InitializeComponent();
