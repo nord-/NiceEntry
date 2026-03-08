@@ -4,7 +4,7 @@
               x:Class="NiceEntry.LabeledDatePicker">
     
     <ne:LabelBase.View>
-        <DatePicker x:Name="Element" />
+        <ne:DatePickerBase x:Name="Element" />
     </ne:LabelBase.View>
     
 </ne:LabelBase>

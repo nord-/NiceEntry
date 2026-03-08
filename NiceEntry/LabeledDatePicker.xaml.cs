@@ -1,21 +1,7 @@
-#if IOS
-using Microsoft.Maui.Handlers;
-#endif
-
 namespace NiceEntry;
 
 public partial class LabeledDatePicker
 {
-    static LabeledDatePicker()
-    {
-#if IOS
-        DatePickerHandler.Mapper.AppendToMapping("NiceEntryDatePicker", (handler, _) =>
-        {
-            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
-        });
-#endif
-    }
-
 	public LabeledDatePicker()
 	{
 		InitializeComponent();

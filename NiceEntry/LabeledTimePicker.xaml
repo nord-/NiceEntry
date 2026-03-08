@@ -4,7 +4,7 @@
               x:Class="NiceEntry.LabeledTimePicker">
     
     <ne:LabelBase.View>
-        <TimePicker x:Name="Element" />
+        <ne:TimePickerBase x:Name="Element" />
     </ne:LabelBase.View>
     
 </ne:LabelBase>

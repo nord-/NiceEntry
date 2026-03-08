@@ -4,7 +4,7 @@
               x:Class="NiceEntry.LabeledPicker">
     
     <ne:LabelBase.View>
-        <Picker x:Name="Element" />
+        <ne:PickerBase x:Name="Element" />
     </ne:LabelBase.View>
     
 </ne:LabelBase>
