@@ -1,13 +1,23 @@
 #if IOS
 using Microsoft.Maui.Handlers;
 using UIKit;
+#elif ANDROID
+using Microsoft.Maui.Handlers;
 #endif
 
 namespace NiceEntry;
 
 internal class PickerBase : Picker
 {
-#if IOS
+#if ANDROID
+    static PickerBase()
+    {
+        PickerHandler.Mapper.AppendToMapping("NiceEntryPicker", (handler, _) =>
+        {
+            handler.PlatformView.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
+        });
+    }
+#elif IOS
     private static nfloat? _entryHeight;
 
     static PickerBase()

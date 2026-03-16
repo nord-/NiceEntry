@@ -3,13 +3,20 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
       x:Class="NiceEntry.LabelBase"
       Padding="0,7,0,0"
-      RowDefinitions="Auto,Auto">
+      RowDefinitions="Auto,Auto,Auto">
 <Grid.Resources>
     <ResourceDictionary>
         <Style x:Key="BaseLabel" TargetType="Label">
             <Setter Property="Padding" Value="4, 0" />
             <Setter Property="Margin" Value="12, 0, 0, 0" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize">
+                <Setter.Value>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="Android" Value="12" />
+                        <On Platform="iOS" Value="11" />
+                    </OnPlatform>
+                </Setter.Value>
+            </Setter>
             <Setter Property="HorizontalOptions" Value="Start" />
             <Setter Property="VerticalOptions" Value="Start" />
         </Style>
@@ -26,29 +33,13 @@
         </Style>
 
         <Style x:Key="BaseBorder" TargetType="Border">
-            <Setter Property="Padding">
-                <Setter.Value>
-                    <OnPlatform x:TypeArguments="Thickness">
-                        <On Platform="Android" Value="8,4" />
-                        <On Platform="iOS" Value="8,8" />
-                    </OnPlatform>
-                </Setter.Value>
-            </Setter>
             <Setter Property="Stroke" Value="Transparent" />
             <Setter Property="StrokeShape" Value="RoundRectangle 4" />
             <Setter Property="StrokeThickness" Value="0" />
         </Style>
 
         <Style x:Key="BaseBorderBasic" TargetType="Border">
-            <Setter Property="Padding">
-                <Setter.Value>
-                    <OnPlatform x:TypeArguments="Thickness">
-                        <On Platform="Android" Value="8,4" />
-                        <On Platform="iOS" Value="8,8" />
-                    </OnPlatform>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light=#212121, Dark=#E1E1E1}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 8" />
             <Setter Property="StrokeThickness" Value="1" />
         </Style>
@@ -56,8 +47,22 @@
         <Style x:Key="LabelContainer" TargetType="HorizontalStackLayout">
             <Setter Property="VerticalOptions" Value="Start" />
             <Setter Property="HorizontalOptions" Value="Start" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
+            <Setter Property="Margin">
+                <Setter.Value>
+                    <OnPlatform x:TypeArguments="Thickness">
+                        <On Platform="Android" Value="8,-7,8,0" />
+                        <On Platform="iOS" Value="8,-10,8,0" />
+                    </OnPlatform>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <Setter Property="Margin" Value="8,-7,8,0" />
+        <Style x:Key="ExampleLabelStyle" TargetType="Label">
+            <Setter Property="Margin" Value="10,2,0,0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light=#9E9E9E, Dark=#BDBDBD}" />
         </Style>
 
         <Style x:Key="ErrorLabel" TargetType="Label" BasedOn="{StaticResource BaseRequiredLabelLabel}">
@@ -74,7 +79,10 @@
 
         <Label x:Name="LabelLabel" Style="{StaticResource BaseLabelLabel}" />
     </HorizontalStackLayout>
-    <Label x:Name="ErrorLabel" Grid.Row="1"
+    <Label x:Name="ExampleLabel" Grid.Row="1"
+           IsVisible="False"
+           Style="{StaticResource ExampleLabelStyle}" />
+    <Label x:Name="ErrorLabel" Grid.Row="2"
            IsVisible="False"
            Style="{StaticResource ErrorLabel}" />
 </Grid>

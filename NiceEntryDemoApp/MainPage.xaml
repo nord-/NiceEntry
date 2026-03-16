@@ -6,19 +6,63 @@
              xmlns:demo="clr-namespace:NiceEntryDemoApp"
              x:Class="NiceEntryDemoApp.MainPage" x:DataType="demo:MainViewModel">
 
+    <ScrollView>
     <VerticalStackLayout Margin="16,32" Spacing="25">
+
+        <VerticalStackLayout.Resources>
+            <Style TargetType="ne:LabeledEntry">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+            <Style TargetType="ne:LabeledDatePicker">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+            <Style TargetType="ne:LabeledTimePicker">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+            <Style TargetType="ne:LabeledPicker">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+        </VerticalStackLayout.Resources>
 
         <ne:LabeledEntry Label="First name or Last name"
                          IsRequired="True"
                          Placeholder="John Doe"
                          Text="{Binding MyProperty}"
                          Keyboard="Numeric"
+                         Example="T.ex. John Doe"
                          Error="{Binding ValidationErrors[MyProperty]}"
                          ReturnCommand="{Binding EnterPressedCommand}" />
+
+        <ne:LabeledEntry Label="Batteristorlek"
+                         Keyboard="Numeric"
+                         HorizontalTextAlignment="End"
+                         Unit="kWh"
+                         Example="T.ex. 70 kWh" />
+
+        <ne:LabeledEntry Label="Unit: custom font &amp; color"
+                         Keyboard="Numeric"
+                         HorizontalTextAlignment="End"
+                         Unit="kg"
+                         UnitFontSize="20"
+                         UnitFontFamily="Georgia"
+                         UnitColor="DarkOrange"
+                         Example="Unit med FontSize=20, FontFamily=Georgia, Color=DarkOrange" />
+
+        <ne:LabeledEntry Label="Extra padding"
+                         Placeholder="Skriv här..."
+                         ContentPadding="24,20"
+                         Example="ContentPadding=24,20 (default är 12,10)" />
+
+        <ne:LabeledEntry Label="Minimal padding"
+                         Placeholder="Skriv här..."
+                         ContentPadding="4,2"
+                         Unit="m"
+                         Example="ContentPadding=4,2 — tätare layout" />
 
         <ne:LabeledDatePicker Label="Select a date"
                               Date="{Binding DateSelected}"
                               MinimumDate="2025-05-01"
+                              Example="Test"
                               Error="{Binding ValidationErrors[DateSelected]}" />
 
         <ne:LabeledTimePicker Label="Select a time"
@@ -36,4 +80,5 @@
                           Error="{Binding ValidationErrors[PickedItem]}" 
                           />
     </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
