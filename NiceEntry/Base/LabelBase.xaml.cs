@@ -2,7 +2,7 @@ namespace NiceEntry;
 
 public partial class LabelBase
 {
-    public const double DefaultFontSize = 16.0;
+    public static readonly double DefaultFontSize = DeviceInfo.Platform == DevicePlatform.iOS ? 12.0 : 16.0;
 
     private readonly Grid _contentGrid;
     private readonly Label _unitLabel;
@@ -31,6 +31,7 @@ public partial class LabelBase
         _contentGrid.Add(_unitLabel, 1, 0);
 
         UpdateContentPaddingView();
+        UpdateUnitFontSizeView();
     }
 
     // Existing properties

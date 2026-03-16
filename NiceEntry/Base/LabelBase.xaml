@@ -9,7 +9,14 @@
         <Style x:Key="BaseLabel" TargetType="Label">
             <Setter Property="Padding" Value="4, 0" />
             <Setter Property="Margin" Value="12, 0, 0, 0" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize">
+                <Setter.Value>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="Android" Value="12" />
+                        <On Platform="iOS" Value="11" />
+                    </OnPlatform>
+                </Setter.Value>
+            </Setter>
             <Setter Property="HorizontalOptions" Value="Start" />
             <Setter Property="VerticalOptions" Value="Start" />
         </Style>
@@ -41,7 +48,14 @@
             <Setter Property="VerticalOptions" Value="Start" />
             <Setter Property="HorizontalOptions" Value="Start" />
             <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
-            <Setter Property="Margin" Value="8,-7,8,0" />
+            <Setter Property="Margin">
+                <Setter.Value>
+                    <OnPlatform x:TypeArguments="Thickness">
+                        <On Platform="Android" Value="8,-7,8,0" />
+                        <On Platform="iOS" Value="8,-10,8,0" />
+                    </OnPlatform>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="ExampleLabelStyle" TargetType="Label">
