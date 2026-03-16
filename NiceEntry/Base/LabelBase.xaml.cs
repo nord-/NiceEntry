@@ -17,6 +17,7 @@ public partial class LabelBase
             HorizontalOptions = LayoutOptions.End,
             IsVisible = false,
             InputTransparent = true,
+            Opacity = 0.6,
             Margin = new Thickness(8, 0, 0, 0)
         };
 
