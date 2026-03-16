@@ -17,6 +17,8 @@ public partial class LabeledEntry
             Element.CursorPosition = 0;
             Element.SelectionLength = Element.Text?.Length ?? 0;
         };
+
+        UpdateFontSizeView();
     }
     
     public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), propertyChanged: TextChanged, defaultBindingMode: BindingMode.TwoWay);
@@ -28,6 +30,7 @@ public partial class LabeledEntry
     public static readonly BindableProperty IsReadOnlyProperty = BindableProperty.Create(nameof(IsReadOnly), typeof(bool), typeof(LabeledEntry), false, propertyChanged: IsReadOnlyChanged);
     public static readonly BindableProperty ReturnCommandProperty = BindableProperty.Create(nameof(ReturnCommand), typeof(ICommand), typeof(LabeledEntry), propertyChanged: ReturnCommandChanged);
     public static readonly BindableProperty HorizontalTextAlignmentProperty = BindableProperty.Create(nameof(HorizontalTextAlignment), typeof(TextAlignment), typeof(LabeledEntry), TextAlignment.Start, propertyChanged: HorizontalTextAlignmentChanged);
+    public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledEntry), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);
 
     public string Text
     {
@@ -82,6 +85,12 @@ public partial class LabeledEntry
         get => (ICommand)GetValue(ReturnCommandProperty);
         set => SetValue(ReturnCommandProperty, value);
     }
+
+    public double FontSize
+    {
+        get => (double)GetValue(FontSizeProperty);
+        set => SetValue(FontSizeProperty, value);
+    }
    
     private static void TextChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateTextView();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderView();
@@ -92,6 +101,7 @@ public partial class LabeledEntry
     private static void MaxLengthChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateMaxLengthView();
     private static void ReturnCommandChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateReturnCommandView();    
     private static void HorizontalTextAlignmentChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateHorizontalTextAlignmentView();
+    private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateFontSizeView();
     
     private void UpdateTextView() => Element.Text = Text;
     private void UpdatePlaceholderView() => Element.Placeholder = Placeholder;
@@ -102,4 +112,5 @@ public partial class LabeledEntry
     private void UpdateMaxLengthView() => Element.MaxLength = MaxLength;
     private void UpdateReturnCommandView() => Element.ReturnCommand = ReturnCommand;
     private void UpdateHorizontalTextAlignmentView() => Element.HorizontalTextAlignment = HorizontalTextAlignment;
+    private void UpdateFontSizeView() => Element.FontSize = FontSize;
 }

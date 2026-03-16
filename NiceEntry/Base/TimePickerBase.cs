@@ -1,13 +1,23 @@
 #if IOS
 using Microsoft.Maui.Handlers;
 using UIKit;
+#elif ANDROID
+using Microsoft.Maui.Handlers;
 #endif
 
 namespace NiceEntry;
 
 internal class TimePickerBase : TimePicker
 {
-#if IOS
+#if ANDROID
+    static TimePickerBase()
+    {
+        TimePickerHandler.Mapper.AppendToMapping("NiceEntryTimePicker", (handler, _) =>
+        {
+            handler.PlatformView.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
+        });
+    }
+#elif IOS
     private static nfloat? _entryHeight;
 
     static TimePickerBase()

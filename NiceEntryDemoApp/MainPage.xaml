@@ -13,8 +13,16 @@
                          Placeholder="John Doe"
                          Text="{Binding MyProperty}"
                          Keyboard="Numeric"
+                         Example="T.ex. John Doe"
                          Error="{Binding ValidationErrors[MyProperty]}"
                          ReturnCommand="{Binding EnterPressedCommand}" />
+
+        <ne:LabeledEntry Label="Batteristorlek"
+                         Placeholder="0"
+                         Keyboard="Numeric"
+                         HorizontalTextAlignment="End"
+                         Unit="kWh"
+                         Example="T.ex. 70 kWh" />
 
         <ne:LabeledDatePicker Label="Select a date"
                               Date="{Binding DateSelected}"

@@ -13,12 +13,15 @@ public partial class LabeledPicker
         Element.SetBinding(Picker.SelectedIndexProperty, nameof(SelectedIndex), BindingMode.TwoWay);
         Element.SetBinding(Picker.SelectedItemProperty, nameof(SelectedItem), BindingMode.TwoWay);
         Element.BindingContext = this;
+
+        UpdateFontSizeView();
     }
     
     public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(LabeledPicker), propertyChanged: ItemSourceChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), propertyChanged: SelectedIndexChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(LabeledPicker), propertyChanged: SelectedItemChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledPicker), propertyChanged: PlaceholderChanged);
+    public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledPicker), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);
 
     public int SelectedIndex
     {
@@ -44,6 +47,12 @@ public partial class LabeledPicker
         set => SetValue(ItemsSourceProperty, value);
     }
 
+    public double FontSize
+    {
+        get => (double)GetValue(FontSizeProperty);
+        set => SetValue(FontSizeProperty, value);
+    }
+
     public BindingBase ItemDisplayBinding
     {
         get => Element?.ItemDisplayBinding!;
@@ -54,9 +63,11 @@ public partial class LabeledPicker
     private static void SelectedIndexChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateSelectedIndex();
     private static void SelectedItemChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateSelectedItem();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdatePlaceholder();
+    private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateFontSizeView();
     
     private void UpdateItemSourceView() => Element.ItemsSource = ItemsSource;
     private void UpdateSelectedIndex() => Element.SelectedIndex = SelectedIndex;
     private void UpdateSelectedItem() => Element.SelectedItem = SelectedItem;
     private void UpdatePlaceholder() => Element.Title = Placeholder;
+    private void UpdateFontSizeView() => Element.FontSize = FontSize;
 }
