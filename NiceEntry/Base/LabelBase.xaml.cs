@@ -104,6 +104,12 @@ public partial class LabelBase
     // Update methods
     private void UpdateElementView()
     {
+        if (View is null)
+        {
+            BorderLabel.Content = null;
+            return;
+        }
+
         if (_contentGrid.Children.Count > 1)
             _contentGrid.RemoveAt(0);
 
@@ -127,8 +133,9 @@ public partial class LabelBase
 
     private void UpdateErrorView()
     {
-        ErrorLabel.Text = string.Join(',', Error);
-        ErrorLabel.IsVisible = Error.Count > 0;
+        var count = Error?.Count ?? 0;
+        ErrorLabel.Text = count > 0 ? string.Join(',', Error!) : string.Empty;
+        ErrorLabel.IsVisible = count > 0;
         ChangeBorderColor();
     }
 

@@ -38,6 +38,26 @@
                          Unit="kWh"
                          Example="T.ex. 70 kWh" />
 
+        <ne:LabeledEntry Label="Unit: custom font &amp; color"
+                         Keyboard="Numeric"
+                         HorizontalTextAlignment="End"
+                         Unit="kg"
+                         UnitFontSize="20"
+                         UnitFontFamily="Georgia"
+                         UnitColor="DarkOrange"
+                         Example="Unit med FontSize=20, FontFamily=Georgia, Color=DarkOrange" />
+
+        <ne:LabeledEntry Label="Extra padding"
+                         Placeholder="Skriv här..."
+                         ContentPadding="24,20"
+                         Example="ContentPadding=24,20 (default är 12,10)" />
+
+        <ne:LabeledEntry Label="Minimal padding"
+                         Placeholder="Skriv här..."
+                         ContentPadding="4,2"
+                         Unit="m"
+                         Example="ContentPadding=4,2 — tätare layout" />
+
         <ne:LabeledDatePicker Label="Select a date"
                               Date="{Binding DateSelected}"
                               MinimumDate="2025-05-01"
