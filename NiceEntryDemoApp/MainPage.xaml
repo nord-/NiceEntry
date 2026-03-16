@@ -8,6 +8,21 @@
 
     <VerticalStackLayout Margin="16,32" Spacing="25">
 
+        <VerticalStackLayout.Resources>
+            <Style TargetType="ne:LabeledEntry">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+            <Style TargetType="ne:LabeledDatePicker">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+            <Style TargetType="ne:LabeledTimePicker">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+            <Style TargetType="ne:LabeledPicker">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
+            </Style>
+        </VerticalStackLayout.Resources>
+
         <ne:LabeledEntry Label="First name or Last name"
                          IsRequired="True"
                          Placeholder="John Doe"
@@ -18,7 +33,6 @@
                          ReturnCommand="{Binding EnterPressedCommand}" />
 
         <ne:LabeledEntry Label="Batteristorlek"
-                         Placeholder="0"
                          Keyboard="Numeric"
                          HorizontalTextAlignment="End"
                          Unit="kWh"
@@ -27,6 +41,7 @@
         <ne:LabeledDatePicker Label="Select a date"
                               Date="{Binding DateSelected}"
                               MinimumDate="2025-05-01"
+                              Example="Test"
                               Error="{Binding ValidationErrors[DateSelected]}" />
 
         <ne:LabeledTimePicker Label="Select a time"

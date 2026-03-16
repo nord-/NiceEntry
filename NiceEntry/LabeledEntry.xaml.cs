@@ -19,10 +19,12 @@ public partial class LabeledEntry
         };
 
         UpdateFontSizeView();
+        UpdatePlaceholderColorView();
     }
     
     public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), propertyChanged: TextChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledEntry), propertyChanged: PlaceholderChanged);
+    public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(nameof(PlaceholderColor), typeof(Color), typeof(LabeledEntry), Color.FromArgb("#808080"), propertyChanged: PlaceholderColorChanged);
     public static readonly BindableProperty MaxLengthProperty = BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(int), int.MaxValue, propertyChanged: MaxLengthChanged);
     public static readonly BindableProperty ReturnTypeProperty = BindableProperty.Create(nameof(ReturnType), typeof(ReturnType), typeof(LabeledEntry), propertyChanged: ReturnTypeChanged);
     public static readonly BindableProperty KeyboardProperty = BindableProperty.Create(nameof(Keyboard), typeof(Keyboard), typeof(LabeledEntry), propertyChanged: KeyboardChanged);
@@ -42,6 +44,12 @@ public partial class LabeledEntry
     {
         get => (string)GetValue(PlaceholderProperty);
         set => SetValue(PlaceholderProperty, value);
+    }
+
+    public Color PlaceholderColor
+    {
+        get => (Color)GetValue(PlaceholderColorProperty);
+        set => SetValue(PlaceholderColorProperty, value);
     }
 
     public int MaxLength
@@ -94,6 +102,7 @@ public partial class LabeledEntry
    
     private static void TextChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateTextView();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderView();
+    private static void PlaceholderColorChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderColorView();
     private static void KeyboardChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateKeyboardView();
     private static void ReturnTypeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateReturnTypeView();
     private static void IsPasswordChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateIsPasswordView();
@@ -105,6 +114,7 @@ public partial class LabeledEntry
     
     private void UpdateTextView() => Element.Text = Text;
     private void UpdatePlaceholderView() => Element.Placeholder = Placeholder;
+    private void UpdatePlaceholderColorView() => Element.PlaceholderColor = PlaceholderColor;
     private void UpdateKeyboardView() => Element.Keyboard = Keyboard;
     private void UpdateReturnTypeView() => Element.ReturnType = ReturnType;
     private void UpdateIsPasswordView() => Element.IsPassword = IsPassword;

@@ -31,7 +31,6 @@ public partial class LabelBase
         _contentGrid.Add(_unitLabel, 1, 0);
 
         UpdateContentPaddingView();
-        Loaded += (_, _) => UpdateLabelContainerBackground();
     }
 
     // Existing properties
@@ -152,37 +151,27 @@ public partial class LabelBase
         ExampleLabel.IsVisible = !string.IsNullOrEmpty(Example);
     }
 
-    private void UpdateLabelContainerBackground()
+    protected override void OnPropertyChanged(string propertyName = null!)
     {
-        LabelContainer.BackgroundColor = FindAncestorBackgroundColor() ??
-            (Application.Current!.UserAppTheme == AppTheme.Light ? Colors.White : Colors.Black);
-    }
+        base.OnPropertyChanged(propertyName);
 
-    private Color? FindAncestorBackgroundColor()
-    {
-        Element? current = this;
-        while (current != null)
+        if (propertyName == nameof(BackgroundColor)
+            && BackgroundColor is not null
+            && BackgroundColor != Colors.Transparent)
         {
-            if (current is VisualElement ve
-                && ve.BackgroundColor is not null
-                && ve.BackgroundColor != Colors.Transparent)
-            {
-                return ve.BackgroundColor;
-            }
-            current = current.Parent;
+            LabelContainer.BackgroundColor = BackgroundColor;
         }
-        return null;
     }
 
     private void ChangeBorderColor()
     {
-        if (Error.Count == 0)
+        if (Error is not null && Error.Count > 0)
         {
-            BorderLabel.Stroke = Application.Current!.UserAppTheme == AppTheme.Light ? Color.FromArgb("#212121") : Color.FromArgb("#E1E1E1");
+            BorderLabel.Stroke = Colors.Red;
         }
         else
         {
-            BorderLabel.Stroke = Colors.Red;
+            BorderLabel.ClearValue(Border.StrokeProperty);
         }
     }
 }

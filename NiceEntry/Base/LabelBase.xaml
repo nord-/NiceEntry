@@ -32,7 +32,7 @@
         </Style>
 
         <Style x:Key="BaseBorderBasic" TargetType="Border">
-            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light=#212121, Dark=#E1E1E1}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 8" />
             <Setter Property="StrokeThickness" Value="1" />
         </Style>
@@ -40,7 +40,7 @@
         <Style x:Key="LabelContainer" TargetType="HorizontalStackLayout">
             <Setter Property="VerticalOptions" Value="Start" />
             <Setter Property="HorizontalOptions" Value="Start" />
-
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
             <Setter Property="Margin" Value="8,-7,8,0" />
         </Style>
 
