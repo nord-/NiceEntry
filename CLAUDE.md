@@ -64,3 +64,19 @@ The `Error` property on `LabelBase` accepts `IReadOnlyCollection<string>`. When 
 - BindableProperty fields named `{PropertyName}Property`
 - Private update methods named `Update{Property}View()`
 - Extension method `SetVisualElementBinding()` wires up `IsEnabled`/`IsVisible` on inner controls
+- CRLF line endings
+
+## CI/CD
+
+NuGet-publicering sker automatiskt via GitHub Actions:
+
+1. PR mergas till master → `release.yml` läser PR-labels (`major`/`minor`/`patch`, default `minor`) och skapar en GitHub release med bumpat versionsnummer
+2. Release publiceras → `publish.yml` bygger, packar och pushar till nuget.org
+
+Version i csproj är för lokala byggen — CI överskriver med `/p:Version` från git-taggen.
+
+Kräver repository secret `NUGET_API_KEY`.
+
+## Git & PR Policy
+
+- Never add "Generated with Claude Code" or "Co-Authored-By: Claude" (or similar attribution) to commit messages, PR descriptions, or PR comments.
