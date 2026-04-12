@@ -22,7 +22,14 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/nord-/NiceEntry</PackageProjectUrl>
 		<PackageOutputPath>$(MSBuildThisFileDirectory)..\nupkgs</PackageOutputPath>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="" />
+		<None Include="..\LICENSE" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="LabeledPicker.xaml.cs">
