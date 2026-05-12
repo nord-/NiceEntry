@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -26,6 +27,31 @@ public partial class MainViewModel : ValidatableViewModel
     [ObservableProperty] private DateTime? _dateSelected = DateTime.Today;
     [ObservableProperty] private TimeSpan? _timeSelected = DateTime.Now.TimeOfDay;
     [ObservableProperty,Required(ErrorMessage = "You have to pick an item")] private PickerItem? _pickedItem;
+
+    [ObservableProperty] private string _icaoText = "";
+
+    public ObservableCollection<string> IcaoSuggestions { get; } = new();
+
+    private static readonly string[] IcaoCandidates =
+    [
+        "ESGG", "ESSA", "ESMS", "ESSB", "ESNQ", "ESPA", "ESNU",
+        "EKCH", "ENGM", "EFHK", "EDDF", "EDDM", "EHAM", "EGLL"
+    ];
+
+    partial void OnIcaoTextChanged(string value)
+    {
+        IcaoSuggestions.Clear();
+        if (string.IsNullOrWhiteSpace(value)) return;
+
+        foreach (var c in IcaoCandidates)
+        {
+            if (c.StartsWith(value, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(c, value, StringComparison.OrdinalIgnoreCase))
+            {
+                IcaoSuggestions.Add(c);
+            }
+        }
+    }
 
     public List<PickerItem> Items { get; set; } =
     [

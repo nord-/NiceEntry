@@ -77,8 +77,15 @@
                           ItemsSource="{Binding Items}"
                           SelectedItem="{Binding PickedItem}"
                           ItemDisplayBinding="{Binding PickerValue, x:DataType=demo:PickerItem}"
-                          Error="{Binding ValidationErrors[PickedItem]}" 
+                          Error="{Binding ValidationErrors[PickedItem]}"
                           />
+
+        <ne:LabeledAutoCompleteEntry Label="ICAO-kod"
+                                     Placeholder="t.ex. ESGG"
+                                     CommitOnUpperCase="True"
+                                     MaxSuggestions="6"
+                                     Text="{Binding IcaoText}"
+                                     Suggestions="{Binding IcaoSuggestions}" />
     </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
