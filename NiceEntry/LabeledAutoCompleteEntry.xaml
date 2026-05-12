@@ -12,6 +12,7 @@
                 Stroke="{AppThemeBinding Light=#212121, Dark=#E1E1E1}"
                 BackgroundColor="{AppThemeBinding Light=White, Dark=Black}">
             <CollectionView x:Name="SuggestionsView"
+                            MaximumHeightRequest="240"
                             SelectionMode="Single"
                             SelectionChanged="OnSuggestionTapped" />
         </Border>

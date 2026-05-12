@@ -13,7 +13,7 @@ public partial class LabeledAutoCompleteEntry
             Padding = new Thickness(8, 4),
             VerticalOptions = LayoutOptions.Center
         };
-        label.SetBinding(Microsoft.Maui.Controls.Label.TextProperty, new Binding(".", stringFormat: "{0}"));
+        label.SetBinding(Microsoft.Maui.Controls.Label.TextProperty, new Binding("."));
         return label;
     });
 
@@ -148,8 +148,8 @@ public partial class LabeledAutoCompleteEntry
             return;
         }
 
-        var cap = MaxSuggestions < 0 ? 0 : MaxSuggestions;
-        var list = new List<object>(capacity: cap);
+        var cap = MaxSuggestions < 0 ? int.MaxValue : MaxSuggestions;
+        var list = new List<object>();
         foreach (var item in Suggestions)
         {
             if (list.Count >= cap) break;
@@ -190,6 +190,6 @@ public partial class LabeledAutoCompleteEntry
         Text = picked;
 
         DropdownBorder.IsVisible = false;
-        Entry.Element.Unfocus();
+        Entry.Element.CursorPosition = picked.Length;
     }
 }
