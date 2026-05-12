@@ -4,7 +4,7 @@
               x:Class="NiceEntry.LabeledEntry">
     
     <ne:LabelBase.View>
-        <ne:EntryBase x:Name="Element" />
+        <ne:EntryBase x:Name="Element" x:FieldModifier="internal" />
     </ne:LabelBase.View>
     
 </ne:LabelBase>
