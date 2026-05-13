@@ -10,6 +10,7 @@ Labeled input controls for .NET MAUI with built-in validation, required field in
 - **LabeledPicker** — Dropdown picker with label
 - **LabeledDatePicker** — Date selector with label
 - **LabeledTimePicker** — Time selector with label
+- **LabeledAutoCompleteEntry** — Entry with inline suggestion dropdown (new in 1.5)
 - Built-in validation error display (red border + error messages)
 - Required field indicator (`*`)
 - Unit suffix label with customizable font, size, and color
@@ -104,6 +105,26 @@ Bind `Error` to an `IReadOnlyCollection<string>` — when non-empty, the border 
                         Time="{Binding SelectedTime}"
                         IsRequired="True" />
 ```
+
+### Auto-complete entry
+
+Filter a list of suggestions as the user types. Tap a row to commit it back into the entry.
+
+```xml
+<nice:LabeledAutoCompleteEntry Label="ICAO code"
+                               Placeholder="e.g. ESGG"
+                               Text="{Binding IcaoText}"
+                               Suggestions="{Binding IcaoSuggestions}"
+                               MaxSuggestions="6"
+                               CommitOnUpperCase="True" />
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `Suggestions` | `IEnumerable` | Source list filtered against `Text` |
+| `MaxSuggestions` | `int` | Cap on visible rows (default `8`; negative = unbounded) |
+| `CommitOnUpperCase` | `bool` | Auto-uppercase typed text (useful for codes) |
+| `SuggestionTemplate` | `DataTemplate` | Custom row template (default: single `Label`) |
 
 ## Common Properties (LabelBase)
 

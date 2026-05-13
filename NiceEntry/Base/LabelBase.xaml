@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Grid xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+      xmlns:drawing="clr-namespace:NiceEntry.Drawing"
       x:Class="NiceEntry.LabelBase"
       Padding="0,7,0,0"
       RowDefinitions="Auto,Auto,Auto">
@@ -32,27 +33,15 @@
             <Setter Property="Padding" Value="4,0,0,0" />
         </Style>
 
-        <Style x:Key="BaseBorder" TargetType="Border">
-            <Setter Property="Stroke" Value="Transparent" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
-            <Setter Property="StrokeThickness" Value="0" />
-        </Style>
-
-        <Style x:Key="BaseBorderBasic" TargetType="Border">
-            <Setter Property="Stroke" Value="{AppThemeBinding Light=#212121, Dark=#E1E1E1}" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 8" />
-            <Setter Property="StrokeThickness" Value="1" />
-        </Style>
-    
-        <Style x:Key="LabelContainer" TargetType="HorizontalStackLayout">
+        <Style x:Key="LabelContainer" TargetType="Grid">
             <Setter Property="VerticalOptions" Value="Start" />
             <Setter Property="HorizontalOptions" Value="Start" />
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
+            <Setter Property="BackgroundColor" Value="Transparent" />
             <Setter Property="Margin">
                 <Setter.Value>
                     <OnPlatform x:TypeArguments="Thickness">
-                        <On Platform="Android" Value="8,-7,8,0" />
-                        <On Platform="iOS" Value="8,-10,8,0" />
+                        <On Platform="Android" Value="14,-7,8,0" />
+                        <On Platform="iOS" Value="14,-10,8,0" />
                     </OnPlatform>
                 </Setter.Value>
             </Setter>
@@ -73,12 +62,15 @@
     </ResourceDictionary>
 </Grid.Resources>
 
-    <Border x:Name="BorderLabel" Style="{StaticResource BaseBorderBasic}" Grid.Row="0" />
-    <HorizontalStackLayout x:Name="LabelContainer" Style="{StaticResource LabelContainer}">
-        <Label x:Name="RequiredLabel" Text="*" Style="{StaticResource BaseRequiredLabelLabel}" />
-
-        <Label x:Name="LabelLabel" Style="{StaticResource BaseLabelLabel}" />
-    </HorizontalStackLayout>
+    <drawing:NotchedBorder x:Name="BorderLabel"
+                           Grid.Row="0"
+                           CornerRadius="8"
+                           StrokeThickness="1" />
+    <Grid x:Name="LabelContainer" Style="{StaticResource LabelContainer}"
+          ColumnDefinitions="Auto,*">
+        <Label x:Name="RequiredLabel" Grid.Column="0" Text="*" Style="{StaticResource BaseRequiredLabelLabel}" />
+        <Label x:Name="LabelLabel" Grid.Column="1" Style="{StaticResource BaseLabelLabel}" LineBreakMode="TailTruncation" />
+    </Grid>
     <Label x:Name="ExampleLabel" Grid.Row="1"
            IsVisible="False"
            Style="{StaticResource ExampleLabelStyle}" />

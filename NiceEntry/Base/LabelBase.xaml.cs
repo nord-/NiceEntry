@@ -1,8 +1,19 @@
+using NiceEntry.Drawing;
+
 namespace NiceEntry;
 
 public partial class LabelBase
 {
     public static readonly double DefaultFontSize = DeviceInfo.Platform == DevicePlatform.iOS ? 12.0 : 16.0;
+
+    // Mirrors the left value of LabelContainer.Margin in LabelBase.xaml — keep in lockstep.
+    private const double LabelContainerLeftMargin = 14;
+    // Horizontal padding between the label text and the surrounding stroke gap;
+    // shared by UpdateLabelMaxWidth and UpdateNotchBounds.
+    private const double NotchPadding = 4;
+
+    private static readonly Color BorderStrokeLight = Color.FromArgb("#212121");
+    private static readonly Color BorderStrokeDark = Color.FromArgb("#E1E1E1");
 
     private readonly Grid _contentGrid;
     private readonly Label _unitLabel;
@@ -33,6 +44,10 @@ public partial class LabelBase
 
         UpdateContentPaddingView();
         UpdateUnitFontSizeView();
+        ApplyDefaultStrokeColor();
+
+        LabelContainer.SizeChanged += (_, _) => UpdateNotchBounds();
+        SizeChanged += (_, _) => UpdateLabelMaxWidth();
     }
 
     // Existing properties
@@ -123,12 +138,38 @@ public partial class LabelBase
     private void UpdateIsRequiredView()
     {
         RequiredLabel.IsVisible = IsRequired;
+        UpdateLabelMaxWidth();
+    }
+
+    private void UpdateLabelMaxWidth()
+    {
+        if (Width <= 0) return;
+
+        var rightSafety = BorderLabel.CornerRadius + NotchPadding + 1;
+
+        LabelContainer.MaximumWidthRequest = Math.Max(0, Width - LabelContainerLeftMargin - rightSafety);
     }
 
     private void UpdateLabelView()
     {
         LabelLabel.Text = Label;
         LabelLabel.IsVisible = !string.IsNullOrEmpty(Label);
+        UpdateNotchBounds();
+    }
+
+    private void UpdateNotchBounds()
+    {
+        if (LabelContainer.Width <= 0 || !LabelLabel.IsVisible)
+        {
+            BorderLabel.NotchStart = 0;
+            BorderLabel.NotchEnd = 0;
+            return;
+        }
+        // The label sits over the top edge of the border. Translate its X-range
+        // into BorderLabel-local coordinates and pad on each side so the text
+        // doesn't kiss the stroke ends.
+        BorderLabel.NotchStart = LabelContainer.X - NotchPadding;
+        BorderLabel.NotchEnd = LabelContainer.X + LabelContainer.Width + NotchPadding;
     }
 
     private void UpdateErrorView()
@@ -141,7 +182,7 @@ public partial class LabelBase
 
     private void UpdateContentPaddingView()
     {
-        BorderLabel.Padding = ContentPadding;
+        BorderLabel.ContentPadding = ContentPadding;
     }
 
     private void UpdateUnitView()
@@ -160,27 +201,22 @@ public partial class LabelBase
         ExampleLabel.IsVisible = !string.IsNullOrEmpty(Example);
     }
 
-    protected override void OnPropertyChanged(string propertyName = null!)
-    {
-        base.OnPropertyChanged(propertyName);
-
-        if (propertyName == nameof(BackgroundColor)
-            && BackgroundColor is not null
-            && BackgroundColor != Colors.Transparent)
-        {
-            LabelContainer.BackgroundColor = BackgroundColor;
-        }
-    }
-
     private void ChangeBorderColor()
     {
         if (Error is not null && Error.Count > 0)
         {
-            BorderLabel.Stroke = Colors.Red;
+            BorderLabel.StrokeColor = Colors.Red;
         }
         else
         {
-            BorderLabel.ClearValue(Border.StrokeProperty);
+            // ClearValue on a property previously set to a local value drops any
+            // existing AppThemeBinding, so re-establish the theme binding to keep
+            // theme toggles working after an error-clear cycle.
+            ApplyDefaultStrokeColor();
         }
     }
+
+    private void ApplyDefaultStrokeColor() =>
+        BorderLabel.SetAppThemeColor(NotchedBorder.StrokeColorProperty,
+            BorderStrokeLight, BorderStrokeDark);
 }

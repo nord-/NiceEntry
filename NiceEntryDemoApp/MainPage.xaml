@@ -7,57 +7,49 @@
              x:Class="NiceEntryDemoApp.MainPage" x:DataType="demo:MainViewModel">
 
     <ScrollView>
-    <VerticalStackLayout Margin="16,32" Spacing="25">
-
-        <VerticalStackLayout.Resources>
-            <Style TargetType="ne:LabeledEntry">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
-            </Style>
-            <Style TargetType="ne:LabeledDatePicker">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
-            </Style>
-            <Style TargetType="ne:LabeledTimePicker">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
-            </Style>
-            <Style TargetType="ne:LabeledPicker">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource OffBlack}}" />
-            </Style>
-        </VerticalStackLayout.Resources>
+    <VerticalStackLayout Margin="16,32" Spacing="25" Padding="0,0,0,400">
+        <Border BackgroundColor="DarkSlateBlue" Padding="16" StrokeThickness="0">
+            <ne:LabeledEntry Label="On a colored surface"
+                             Placeholder="Notch should be cut, no rectangle behind label" />
+        </Border>
 
         <ne:LabeledEntry Label="First name or Last name"
                          IsRequired="True"
                          Placeholder="John Doe"
                          Text="{Binding MyProperty}"
                          Keyboard="Numeric"
-                         Example="T.ex. John Doe"
+                         Example="e.g. John Doe"
                          Error="{Binding ValidationErrors[MyProperty]}"
                          ReturnCommand="{Binding EnterPressedCommand}" />
 
-        <ne:LabeledEntry Label="Batteristorlek"
+        <ne:LabeledEntry Label="Battery size"
                          Keyboard="Numeric"
                          HorizontalTextAlignment="End"
                          Unit="kWh"
-                         Example="T.ex. 70 kWh" />
+                         Example="e.g. 70 kWh" />
 
         <ne:LabeledEntry Label="Unit: custom font &amp; color"
                          Keyboard="Numeric"
                          HorizontalTextAlignment="End"
                          Unit="kg"
                          UnitFontSize="20"
-                         UnitFontFamily="Georgia"
+                         UnitFontFamily="OpenSansSemibold"
                          UnitColor="DarkOrange"
-                         Example="Unit med FontSize=20, FontFamily=Georgia, Color=DarkOrange" />
+                         Example="Unit with FontSize=20, FontFamily=OpenSansSemibold, Color=DarkOrange" />
 
         <ne:LabeledEntry Label="Extra padding"
-                         Placeholder="Skriv här..."
+                         Placeholder="Type here..."
                          ContentPadding="24,20"
-                         Example="ContentPadding=24,20 (default är 12,10)" />
+                         Example="ContentPadding=24,20 (default is 12,10)" />
 
         <ne:LabeledEntry Label="Minimal padding"
-                         Placeholder="Skriv här..."
+                         Placeholder="Type here..."
                          ContentPadding="4,2"
                          Unit="m"
-                         Example="ContentPadding=4,2 — tätare layout" />
+                         Example="ContentPadding=4,2 — tighter layout" />
+
+        <ne:LabeledEntry Label="A really, really long heading that makes the label stretch much more than there's space for."
+                         Placeholder="Type here..." />
 
         <ne:LabeledDatePicker Label="Select a date"
                               Date="{Binding DateSelected}"
@@ -80,8 +72,8 @@
                           Error="{Binding ValidationErrors[PickedItem]}"
                           />
 
-        <ne:LabeledAutoCompleteEntry Label="ICAO-kod"
-                                     Placeholder="t.ex. ESGG"
+        <ne:LabeledAutoCompleteEntry Label="ICAO-code"
+                                     Placeholder="e.g. ESGG"
                                      CommitOnUpperCase="True"
                                      MaxSuggestions="6"
                                      Text="{Binding IcaoText}"
