@@ -1,3 +1,5 @@
+using NiceEntry.Drawing;
+
 namespace NiceEntry;
 
 public partial class LabelBase
@@ -33,6 +35,14 @@ public partial class LabelBase
 
         UpdateContentPaddingView();
         UpdateUnitFontSizeView();
+
+        LabelContainer.SizeChanged += (_, _) => UpdateNotchBounds();
+        LabelContainer.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(VisualElement.X) || e.PropertyName == nameof(VisualElement.Width))
+                UpdateNotchBounds();
+        };
+        SizeChanged += (_, _) => UpdateLabelMaxWidth();
     }
 
     // Existing properties
@@ -123,12 +133,41 @@ public partial class LabelBase
     private void UpdateIsRequiredView()
     {
         RequiredLabel.IsVisible = IsRequired;
+        UpdateLabelMaxWidth();
+    }
+
+    private void UpdateLabelMaxWidth()
+    {
+        if (Width <= 0) return;
+
+        const double leftMargin = 14;
+        const double notchPad = 4;
+        var rightSafety = BorderLabel.CornerRadius + notchPad + 1;
+
+        LabelContainer.MaximumWidthRequest = Math.Max(0, Width - leftMargin - rightSafety);
     }
 
     private void UpdateLabelView()
     {
         LabelLabel.Text = Label;
         LabelLabel.IsVisible = !string.IsNullOrEmpty(Label);
+        UpdateNotchBounds();
+    }
+
+    private void UpdateNotchBounds()
+    {
+        if (LabelContainer.Width <= 0 || !LabelLabel.IsVisible)
+        {
+            BorderLabel.NotchStart = 0;
+            BorderLabel.NotchEnd = 0;
+            return;
+        }
+        // The label sits over the top edge of the border. Translate its X-range
+        // into BorderLabel-local coordinates and pad by 4px on each side so the
+        // text doesn't kiss the stroke ends.
+        const double pad = 4;
+        BorderLabel.NotchStart = LabelContainer.X - pad;
+        BorderLabel.NotchEnd = LabelContainer.X + LabelContainer.Width + pad;
     }
 
     private void UpdateErrorView()
@@ -141,7 +180,7 @@ public partial class LabelBase
 
     private void UpdateContentPaddingView()
     {
-        BorderLabel.Padding = ContentPadding;
+        BorderLabel.ContentPadding = ContentPadding;
     }
 
     private void UpdateUnitView()
@@ -160,27 +199,15 @@ public partial class LabelBase
         ExampleLabel.IsVisible = !string.IsNullOrEmpty(Example);
     }
 
-    protected override void OnPropertyChanged(string propertyName = null!)
-    {
-        base.OnPropertyChanged(propertyName);
-
-        if (propertyName == nameof(BackgroundColor)
-            && BackgroundColor is not null
-            && BackgroundColor != Colors.Transparent)
-        {
-            LabelContainer.BackgroundColor = BackgroundColor;
-        }
-    }
-
     private void ChangeBorderColor()
     {
         if (Error is not null && Error.Count > 0)
         {
-            BorderLabel.Stroke = Colors.Red;
+            BorderLabel.StrokeColor = Colors.Red;
         }
         else
         {
-            BorderLabel.ClearValue(Border.StrokeProperty);
+            BorderLabel.ClearValue(NotchedBorder.StrokeColorProperty);
         }
     }
 }
