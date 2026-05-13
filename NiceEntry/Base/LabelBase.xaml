@@ -65,8 +65,7 @@
     <drawing:NotchedBorder x:Name="BorderLabel"
                            Grid.Row="0"
                            CornerRadius="8"
-                           StrokeThickness="1"
-                           StrokeColor="{AppThemeBinding Light=#212121, Dark=#E1E1E1}" />
+                           StrokeThickness="1" />
     <Grid x:Name="LabelContainer" Style="{StaticResource LabelContainer}"
           ColumnDefinitions="Auto,*">
         <Label x:Name="RequiredLabel" Grid.Column="0" Text="*" Style="{StaticResource BaseRequiredLabelLabel}" />

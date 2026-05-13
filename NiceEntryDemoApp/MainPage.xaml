@@ -18,7 +18,7 @@
                          Placeholder="John Doe"
                          Text="{Binding MyProperty}"
                          Keyboard="Numeric"
-                         Example="I.e. John Doe"
+                         Example="e.g. John Doe"
                          Error="{Binding ValidationErrors[MyProperty]}"
                          ReturnCommand="{Binding EnterPressedCommand}" />
 
@@ -26,7 +26,7 @@
                          Keyboard="Numeric"
                          HorizontalTextAlignment="End"
                          Unit="kWh"
-                         Example="I.e. 70 kWh" />
+                         Example="e.g. 70 kWh" />
 
         <ne:LabeledEntry Label="Unit: custom font &amp; color"
                          Keyboard="Numeric"
@@ -48,7 +48,7 @@
                          Unit="m"
                          Example="ContentPadding=4,2 — tighter layout" />
 
-        <ne:LabeledEntry Label="A really, really long heading that makes the label strech much more than there's space for."
+        <ne:LabeledEntry Label="A really, really long heading that makes the label stretch much more than there's space for."
                          Placeholder="Type here..." />
 
         <ne:LabeledDatePicker Label="Select a date"
@@ -73,7 +73,7 @@
                           />
 
         <ne:LabeledAutoCompleteEntry Label="ICAO-code"
-                                     Placeholder="t.ex. ESGG"
+                                     Placeholder="e.g. ESGG"
                                      CommitOnUpperCase="True"
                                      MaxSuggestions="6"
                                      Text="{Binding IcaoText}"

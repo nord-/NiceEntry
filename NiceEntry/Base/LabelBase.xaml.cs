@@ -6,6 +6,15 @@ public partial class LabelBase
 {
     public static readonly double DefaultFontSize = DeviceInfo.Platform == DevicePlatform.iOS ? 12.0 : 16.0;
 
+    // Mirrors the left value of LabelContainer.Margin in LabelBase.xaml — keep in lockstep.
+    private const double LabelContainerLeftMargin = 14;
+    // Horizontal padding between the label text and the surrounding stroke gap;
+    // shared by UpdateLabelMaxWidth and UpdateNotchBounds.
+    private const double NotchPadding = 4;
+
+    private static readonly Color BorderStrokeLight = Color.FromArgb("#212121");
+    private static readonly Color BorderStrokeDark = Color.FromArgb("#E1E1E1");
+
     private readonly Grid _contentGrid;
     private readonly Label _unitLabel;
 
@@ -35,13 +44,9 @@ public partial class LabelBase
 
         UpdateContentPaddingView();
         UpdateUnitFontSizeView();
+        ApplyDefaultStrokeColor();
 
         LabelContainer.SizeChanged += (_, _) => UpdateNotchBounds();
-        LabelContainer.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(VisualElement.X) || e.PropertyName == nameof(VisualElement.Width))
-                UpdateNotchBounds();
-        };
         SizeChanged += (_, _) => UpdateLabelMaxWidth();
     }
 
@@ -140,11 +145,9 @@ public partial class LabelBase
     {
         if (Width <= 0) return;
 
-        const double leftMargin = 14;
-        const double notchPad = 4;
-        var rightSafety = BorderLabel.CornerRadius + notchPad + 1;
+        var rightSafety = BorderLabel.CornerRadius + NotchPadding + 1;
 
-        LabelContainer.MaximumWidthRequest = Math.Max(0, Width - leftMargin - rightSafety);
+        LabelContainer.MaximumWidthRequest = Math.Max(0, Width - LabelContainerLeftMargin - rightSafety);
     }
 
     private void UpdateLabelView()
@@ -163,11 +166,10 @@ public partial class LabelBase
             return;
         }
         // The label sits over the top edge of the border. Translate its X-range
-        // into BorderLabel-local coordinates and pad by 4px on each side so the
-        // text doesn't kiss the stroke ends.
-        const double pad = 4;
-        BorderLabel.NotchStart = LabelContainer.X - pad;
-        BorderLabel.NotchEnd = LabelContainer.X + LabelContainer.Width + pad;
+        // into BorderLabel-local coordinates and pad on each side so the text
+        // doesn't kiss the stroke ends.
+        BorderLabel.NotchStart = LabelContainer.X - NotchPadding;
+        BorderLabel.NotchEnd = LabelContainer.X + LabelContainer.Width + NotchPadding;
     }
 
     private void UpdateErrorView()
@@ -207,7 +209,14 @@ public partial class LabelBase
         }
         else
         {
-            BorderLabel.ClearValue(NotchedBorder.StrokeColorProperty);
+            // ClearValue on a property previously set to a local value drops any
+            // existing AppThemeBinding, so re-establish the theme binding to keep
+            // theme toggles working after an error-clear cycle.
+            ApplyDefaultStrokeColor();
         }
     }
+
+    private void ApplyDefaultStrokeColor() =>
+        BorderLabel.SetAppThemeColor(NotchedBorder.StrokeColorProperty,
+            BorderStrokeLight, BorderStrokeDark);
 }
