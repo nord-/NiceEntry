@@ -44,11 +44,15 @@ CRLF, spaces.
 Sex varianter härleds från två innehållsproperties plus två layoutproperties:
 
 ```
-Icon (MaterialIcon?)   — default null  → "ingen ikon"
-Text (string)          — default ""    → null/empty = "ingen text"
-Orientation (enum)     — Horizontal | Vertical   (effekt endast när både Icon och Text är satta)
-IconPlacement (enum)   — Start | End             (effekt endast när både Icon och Text är satta)
+Icon (MaterialIcon?)                     — default null  → "ingen ikon"
+Text (string)                            — default ""    → null/empty = "ingen text"
+Orientation (ButtonContentOrientation)   — Horizontal | Vertical   (effekt endast när både Icon och Text är satta)
+IconPlacement (IconPlacement)            — Start | End             (effekt endast när både Icon och Text är satta)
 ```
+
+Property-namnet är `Orientation`, men typen heter `ButtonContentOrientation` för att
+undvika namnkrock med MAUI-typer i implicit-usings-scope (file-scoped namespace gör att
+fully-qualified inte krävs i NiceEntry-kod).
 
 Innehållsläget **härleds** (ingen separat enum):
 
@@ -87,9 +91,13 @@ CornerRadius (double)  — default 8, bindable
 - `Rectangle` → `StrokeShape = Rectangle` (raka hörn). `CornerRadius` ignoreras.
 - `Rounded` → `StrokeShape = RoundRectangle` med `CornerRadius`. Enda läget som använder `CornerRadius`.
 - `Circle` → `StrokeShape = Ellipse`. `CornerRadius` ignoreras.
-  - **Auto-kvadratisk:** i `Circle`-läge mäter kontrollen största sidan och sätter
-    width = height så det alltid blir en perfekt cirkel, oavsett consumerns angivna mått.
-    Typiskt använt ihop med icon only.
+  - **Auto-kvadratisk:** i `Circle`-läge ska knappen alltid bli en perfekt cirkel oavsett
+    consumerns angivna mått. Detta löses via **`MeasureOverride`** på `NiceButton` som
+    returnerar en kvadratisk storlek (sida = max av uppmätt bredd/höjd inkl. padding) —
+    **inte** via `SizeChanged` + `WidthRequest`/`HeightRequest`, eftersom det mönstret
+    triggar layout-rundtrips och race conditions på Android. I `Rectangle`/`Rounded`-läge
+    returnerar `MeasureOverride` den vanliga uppmätta storleken. Circle används typiskt
+    ihop med icon only.
 
 ## 5. Färger, tema och skugga
 
@@ -102,12 +110,19 @@ Background (Brush)         — gradient e.d.; vinner över BackgroundColor om sa
 TextColor (Color)          — DELAS av ikon och text (tema-default)
 BorderColor (Color)        — Border.Stroke (default transparent)
 BorderWidth (double)       — Border.StrokeThickness (default 0)
-FontSize (double)          — text; default LabelBase.DefaultFontSize
+FontSize (double)          — text; default NiceButton.DefaultFontSize (14.0)
 FontFamily (string)        — text
 FontAttributes (enum)      — text; default None
 IconSize (double)          — ikonens fontstorlek; default 20
 Spacing (double)           — mellanrum ikon/text; default 6
+Padding (Thickness)        — avstånd mellan border-kant och innehåll; proxas till inre Border.Padding
 ```
+
+`NiceButton.DefaultFontSize = 14.0` (egen konstant, inte `LabelBase.DefaultFontSize` —
+som är fältanpassad och blir för liten för knapptext på iOS). `Padding` är en egen
+BindableProperty som sätter den inre `Border.Padding` (alltså det visuella innehålls-
+avståndet), inte ContentViewns ärvda padding. Default följer `LabelBase.ContentPadding`:
+iOS `(12, 12)`, Android `(12, 10)`.
 
 En enda `TextColor` driver **både** ikon-`Label` och text-`Label` — de kan aldrig hamna i
 otakt (verbatim användarregel: ikon och text följs alltid åt).
@@ -121,11 +136,16 @@ otakt (verbatim användarregel: ikon och text följs alltid åt).
 
 **Skugga:**
 ```
-HasShadow (bool)    — default false. true → inbyggd default-skugga.
-Shadow (Shadow)     — override; om satt används den istället för default-skuggan.
+HasShadow (bool)         — default false. true → inbyggd default-skugga.
+CustomShadow (Shadow)    — override; om satt används den istället för default-skuggan.
 ```
-`HasShadow=false` + ingen `Shadow` → ingen skugga. `HasShadow=true` → inbyggd default.
-`Shadow` satt → vinner alltid.
+`HasShadow=false` + ingen `CustomShadow` → ingen skugga. `HasShadow=true` → inbyggd
+default. `CustomShadow` satt → vinner alltid. Skuggan appliceras på den inre `Border`.
+
+> **Namnval:** override-propertyn heter `CustomShadow`, **inte** `Shadow`, eftersom
+> `VisualElement.Shadow` redan finns ärvd sedan .NET 7. Att redeklarera en `Shadow`-
+> BindableProperty skulle skugga den ärvda och ge tvetydiga bindningar. Den ärvda
+> `Shadow` på själva kontrollen lämnas oanvänd; all skugg-rendering sker på inre `Border`.
 
 ## 6. Ikoner (Material Design Icons)
 
@@ -150,6 +170,10 @@ IconSize (double)      — ikonens fontstorlek
 - Consumern registrerar fonten via en ny `MauiAppBuilder`-extension **`.UseNiceEntry()`**
   som internt kallar `ConfigureFonts(...)` och registrerar MDI-fonten. Mönstret matchar
   `.UseCircularPicker()` / `.UseLicensePlate()`.
+- `.UseNiceEntry()` ska vara **idempotent och konfliktfri**: om consumern redan har en egen
+  `ConfigureFonts(...)` eller råkar anropa extensionen två gånger får det inte krascha.
+  `AddFont` med samma alias upprepat är ofarligt (sista vinner), men extensionen ska inte
+  förutsätta att den är ensam om att registrera fonter.
 
 Licens: MDI-fonten är Apache-2.0 / SIL OFL — inkludera attribuering i paketet enligt
 licenskrav.
@@ -168,37 +192,48 @@ IsEnabled (bool)           — ärvd; kopplad till Command.CanExecute
 - `Command.CanExecuteChanged` lyssnas på → automatiskt Disabled-state.
 - Inget `Clicked`-event, inget spinner-/async-läge (YAGNI).
 
+**IsEnabled och tap (explicit mönster):** `TapGestureRecognizer` ska inte förlita sig på
+att `IsEnabled` på parent-containern automatiskt blockerar tryck. Två lager:
+1. Inre `Border.IsEnabled` binds till kontrollens `IsEnabled` (som `ChargeNodeButton`).
+2. Tap-handlern guardar explicit: `if (!IsEnabled) return;` följt av
+   `Command?.CanExecute(CommandParameter)`-kontroll innan `Command` körs (och innan
+   fade-animationen, så en disabled knapp inte ger feedback).
+
 ## 8. Komplett API-yta
 
 | Kategori | Property | Typ | Default |
 |---|---|---|---|
 | Innehåll | `Text` | string | `""` |
 | Innehåll | `Icon` | `MaterialIcon?` | `null` |
-| Layout | `Orientation` | enum | `Horizontal` |
-| Layout | `IconPlacement` | enum | `Start` |
+| Layout | `Orientation` | `ButtonContentOrientation` | `Horizontal` |
+| Layout | `IconPlacement` | `IconPlacement` | `Start` |
 | Layout | `Spacing` | double | 6 |
-| Form | `ButtonShape` | enum | `Rounded` |
+| Layout | `Padding` | Thickness | iOS `(12,12)` / Android `(12,10)` |
+| Form | `ButtonShape` | `ButtonShape` | `Rounded` |
 | Form | `CornerRadius` | double | 8 |
 | Färg | `BackgroundColor` | Color | tema |
 | Färg | `Background` | Brush | – |
 | Färg | `TextColor` | Color | tema (ikon+text) |
 | Färg | `BorderColor` | Color | transparent |
 | Färg | `BorderWidth` | double | 0 |
-| Text | `FontSize` | double | `LabelBase.DefaultFontSize` |
+| Text | `FontSize` | double | `NiceButton.DefaultFontSize` (14.0) |
 | Text | `FontFamily` | string | – |
-| Text | `FontAttributes` | enum | None |
+| Text | `FontAttributes` | FontAttributes | None |
 | Ikon | `IconSize` | double | 20 |
 | Skugga | `HasShadow` | bool | `false` |
-| Skugga | `Shadow` | Shadow | – |
+| Skugga | `CustomShadow` | Shadow | – |
 | Interaktion | `Command` | ICommand | – |
 | Interaktion | `CommandParameter` | object | – |
 | Interaktion | `IsEnabled` | bool | true (ärvd) |
 
 **Enums:**
 - `ButtonShape { Rectangle, Rounded, Circle }`
-- `Orientation { Horizontal, Vertical }` *(intern; namnkrock med MAUI `StackOrientation` undviks — egen enum i NiceEntry-namespace)*
+- `ButtonContentOrientation { Horizontal, Vertical }` *(egen enum; property heter `Orientation`, typnamnet är explicit för att undvika krock med MAUI-typer i implicit-usings-scope)*
 - `IconPlacement { Start, End }`
 - `MaterialIcon { ... }` (genererad, codepoint-värden)
+
+**Konstant:**
+- `NiceButton.DefaultFontSize = 14.0` (default för `FontSize`)
 
 ## 9. Levererat med paketet
 
@@ -214,5 +249,5 @@ IsEnabled (bool)           — ärvd; kopplad till Command.CanExecute
 - Exakt generering av `MaterialIcon` (build-time source generator vs. incheckad genererad
   fil från `meta.json`). Designvalet är en **incheckad genererad fil** för enkelhet.
 - Exakta default-tema-färger (light/dark) för bakgrund, text och disabled-läge.
-- Auto-kvadratisk mätlogik för `Circle` (SizeChanged-baserad).
+- Detaljerad `MeasureOverride`-implementation för `Circle` (kvadratisk mätning).
 - Verifiering av `.props`/`.targets`-paketering i en consumer via `PackageReference`.
