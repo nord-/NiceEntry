@@ -60,6 +60,15 @@ public partial class MainViewModel : ValidatableViewModel
         new PickerItem("3", "Three")
     ];
 
+    [ObservableProperty] private bool _isButtonEnabled = true;
+
+    [RelayCommand]
+    private async Task NiceButtonTapped(string? which)
+    {
+        var toast = Toast.Make($"NiceButton tapped: {which ?? "(no parameter)"}");
+        await toast.Show();
+    }
+
     [RelayCommand]
     private async Task OnEnterPressed()
     {

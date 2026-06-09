@@ -8,22 +8,52 @@
 
     <ScrollView>
     <VerticalStackLayout Margin="16,32" Spacing="25" Padding="0,0,0,400">
+        <Label Text="NiceButton" FontSize="20" FontAttributes="Bold" />
+
+        <!-- Six layout variants -->
+        <ne:NiceButton Text="Label only"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Label only" />
+
+        <ne:NiceButton Icon="ThumbUp" ButtonShape="Circle"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon only" />
+
+        <ne:NiceButton Text="Buy now" Icon="Cart" Orientation="Horizontal" IconPlacement="Start"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon left" />
+
+        <ne:NiceButton Text="Choose plan" Icon="ArrowRight" Orientation="Horizontal" IconPlacement="End"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon right" />
+
+        <ne:NiceButton Text="Read" Icon="Email" Orientation="Vertical" IconPlacement="Start"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon top" />
+
+        <ne:NiceButton Text="Undo" Icon="Undo" Orientation="Vertical" IconPlacement="End"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon bottom" />
+
+        <!-- Shapes -->
+        <ne:NiceButton Text="Rectangle" ButtonShape="Rectangle" BackgroundColor="#3B49DF" TextColor="White" />
+        <ne:NiceButton Text="Rounded r=20" ButtonShape="Rounded" CornerRadius="20" BackgroundColor="#3B49DF" TextColor="White" />
+
+        <!-- Shadow + disabled -->
+        <ne:NiceButton Text="With shadow" Icon="Star" HasShadow="True" BackgroundColor="#3B49DF" TextColor="White" />
+        <ne:NiceButton Text="Default theme colors" Icon="Palette" />
+        <ne:NiceButton Text="Bound IsEnabled" Icon="Lock" IsEnabled="{Binding IsButtonEnabled}"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Bound IsEnabled" />
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="Enable the button above" VerticalOptions="Center" />
+            <Switch IsToggled="{Binding IsButtonEnabled}" />
+        </HorizontalStackLayout>
+
         <Border BackgroundColor="DarkSlateBlue" Padding="16" StrokeThickness="0">
             <ne:LabeledEntry Label="On a colored surface"
                              Placeholder="Notch should be cut, no rectangle behind label" />
         </Border>
-
-        <!-- NICEBUTTON-DEV-CHECKS (temporary; removed atomically in Task 9) -->
-        <ne:NiceButton Text="Buy now" Icon="Cart" Orientation="Horizontal" IconPlacement="Start" />
-        <ne:NiceButton Icon="ThumbUp" ButtonShape="Circle" />
-        <ne:NiceButton Text="Rounded" ButtonShape="Rounded" CornerRadius="20" />
-        <ne:NiceButton Text="Rectangle" ButtonShape="Rectangle" />
-        <ne:NiceButton Text="Default theme colors" Icon="Check" />
-        <ne:NiceButton Text="Custom" Icon="Star" BackgroundColor="DarkGreen" TextColor="White" />
-        <ne:NiceButton Text="Disabled" Icon="Lock" IsEnabled="False" />
-        <ne:NiceButton Text="Shadow on" Icon="Star" HasShadow="True" />
-        <ne:NiceButton Text="No shadow" Icon="Star" />
-        <!-- /NICEBUTTON-DEV-CHECKS -->
 
         <ne:LabeledEntry Label="First name or Last name"
                          IsRequired="True"
