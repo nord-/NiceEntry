@@ -209,30 +209,38 @@ public class NiceButton : Layout
             IsEnabled = cmd.CanExecute(CommandParameter);
     }
 
-    private static void TextChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateTextView();
-    private static void IconChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconView();
+    private static void TextChanged(BindableObject b, object o, object n)
+    {
+        var btn = (NiceButton)b;
+        if (string.IsNullOrEmpty(o as string) == string.IsNullOrEmpty(n as string))
+            btn._textLabel.Text = (string?)n ?? string.Empty;
+        else
+            btn.RebuildContent();
+    }
+
+    private static void IconChanged(BindableObject b, object o, object n)
+    {
+        var btn = (NiceButton)b;
+        if ((o is MaterialIcon) == (n is MaterialIcon))
+            btn._iconLabel.Text = n is MaterialIcon icon ? char.ConvertFromUtf32((int)icon) : null;
+        else
+            btn.RebuildContent();
+    }
     private static void LayoutAffectingChanged(BindableObject b, object o, object n) => ((NiceButton)b).RebuildContent();
     private static void ContentPaddingChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateContentPaddingView();
     private static void FontSizeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontSizeView();
     private static void FontFamilyChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontFamilyView();
     private static void FontAttributesChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontAttributesView();
     private static void IconSizeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconSizeView();
-    private static void ShapeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateShapeView();
+    private static void ShapeChanged(BindableObject b, object o, object n)
+    {
+        var btn = (NiceButton)b;
+        btn.UpdateShapeView();
+        btn.InvalidateMeasure();
+    }
     private static void ColorChanged(BindableObject b, object o, object n) => ((NiceButton)b).ApplyColors();
     private static void BorderStrokeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateBorderStrokeView();
     private static void ShadowChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateShadowView();
-
-    private void UpdateTextView()
-    {
-        _textLabel.Text = Text;
-        RebuildContent();
-    }
-
-    private void UpdateIconView()
-    {
-        _iconLabel.Text = Icon.HasValue ? char.ConvertFromUtf32((int)Icon.Value) : null;
-        RebuildContent();
-    }
 
     private void UpdateContentPaddingView() => _border.Padding = ContentPadding;
     private void UpdateFontSizeView() => _textLabel.FontSize = FontSize;
@@ -248,8 +256,6 @@ public class NiceButton : Layout
             ButtonShape.Circle => new Ellipse(),
             _ => new RoundRectangle { CornerRadius = new Microsoft.Maui.CornerRadius(CornerRadius) }
         };
-
-        InvalidateMeasure();
     }
 
     private void ApplyColors()
@@ -371,6 +377,9 @@ public class NiceButton : Layout
         _contentHost.Children.Clear();
         _contentHost.RowDefinitions.Clear();
         _contentHost.ColumnDefinitions.Clear();
+
+        _iconLabel.Text = Icon.HasValue ? char.ConvertFromUtf32((int)Icon.Value) : null;
+        _textLabel.Text = Text;
 
         var hasIcon = Icon.HasValue;
         var hasText = !string.IsNullOrEmpty(Text);
