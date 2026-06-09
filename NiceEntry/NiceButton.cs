@@ -343,17 +343,15 @@ public class NiceButton : Layout
         if (!IsEnabled || !_commandEnabled) return;
         if (_tapInFlight) return;
         _tapInFlight = true;
-        var cmd = Command;
-        var param = CommandParameter;
-        if (cmd is null || !cmd.CanExecute(param))
-        {
-            _tapInFlight = false;
-            return;
-        }
         try
         {
+            var cmd = Command;
+            var param = CommandParameter;
+            if (cmd is null || !cmd.CanExecute(param)) return;
+
             await _contentHost.FadeToAsync(0.3, 100);
             await _contentHost.FadeToAsync(1, 100);
+
             if (cmd.CanExecute(param))
                 cmd.Execute(param);
         }
