@@ -78,6 +78,7 @@ public class NiceButton : Layout
         UpdateShapeView();
         UpdateBorderStrokeView();
         ApplyColors();
+        UpdateShadowView();
     }
 
     /// <summary>True when the button must be measured square (Circle shape).</summary>
@@ -137,6 +138,12 @@ public class NiceButton : Layout
     public static readonly BindableProperty BorderWidthProperty = BindableProperty.Create(
         nameof(BorderWidth), typeof(double), typeof(NiceButton), 0.0, propertyChanged: BorderStrokeChanged);
 
+    public static readonly BindableProperty HasShadowProperty = BindableProperty.Create(
+        nameof(HasShadow), typeof(bool), typeof(NiceButton), false, propertyChanged: ShadowChanged);
+
+    public static readonly BindableProperty CustomShadowProperty = BindableProperty.Create(
+        nameof(CustomShadow), typeof(Shadow), typeof(NiceButton), null, propertyChanged: ShadowChanged);
+
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public MaterialIcon? Icon { get => (MaterialIcon?)GetValue(IconProperty); set => SetValue(IconProperty, value); }
     public ButtonContentOrientation Orientation { get => (ButtonContentOrientation)GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
@@ -152,6 +159,8 @@ public class NiceButton : Layout
     public Color TextColor { get => (Color)GetValue(TextColorProperty); set => SetValue(TextColorProperty, value); }
     public Color BorderColor { get => (Color)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
     public double BorderWidth { get => (double)GetValue(BorderWidthProperty); set => SetValue(BorderWidthProperty, value); }
+    public bool HasShadow { get => (bool)GetValue(HasShadowProperty); set => SetValue(HasShadowProperty, value); }
+    public Shadow CustomShadow { get => (Shadow)GetValue(CustomShadowProperty); set => SetValue(CustomShadowProperty, value); }
 
     private static void TextChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateTextView();
     private static void IconChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconView();
@@ -164,6 +173,7 @@ public class NiceButton : Layout
     private static void ShapeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateShapeView();
     private static void ColorChanged(BindableObject b, object o, object n) => ((NiceButton)b).ApplyColors();
     private static void BorderStrokeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateBorderStrokeView();
+    private static void ShadowChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateShadowView();
 
     private void UpdateTextView()
     {
@@ -251,6 +261,16 @@ public class NiceButton : Layout
     {
         _border.Stroke = BorderColor is null ? null : new SolidColorBrush(BorderColor);
         _border.StrokeThickness = BorderWidth;
+    }
+
+    private void UpdateShadowView()
+    {
+        if (CustomShadow is not null)
+            _border.Shadow = CustomShadow;
+        else if (HasShadow)
+            _border.Shadow = new Shadow { Brush = Brush.Black, Opacity = 0.3f, Radius = 8, Offset = new Point(0, 2) };
+        else
+            _border.Shadow = null;
     }
 
     protected override void OnPropertyChanged(string? propertyName = null)

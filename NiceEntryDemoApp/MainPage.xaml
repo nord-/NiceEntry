@@ -21,6 +21,8 @@
         <ne:NiceButton Text="Default theme colors" Icon="Check" />
         <ne:NiceButton Text="Custom" Icon="Star" BackgroundColor="DarkGreen" TextColor="White" />
         <ne:NiceButton Text="Disabled" Icon="Lock" IsEnabled="False" />
+        <ne:NiceButton Text="Shadow on" Icon="Star" HasShadow="True" />
+        <ne:NiceButton Text="No shadow" Icon="Star" />
         <!-- /NICEBUTTON-DEV-CHECKS -->
 
         <ne:LabeledEntry Label="First name or Last name"
