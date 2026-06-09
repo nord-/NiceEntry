@@ -6,9 +6,10 @@ internal class EntryBaseNative : Entry
 {
     static EntryBaseNative()
     {
-        EntryHandler.Mapper.AppendToMapping("EntryBase", (handler, _) =>
+        EntryHandler.Mapper.AppendToMapping("EntryBase", (handler, view) =>
         {
-            handler.PlatformView.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
+            if (view is EntryBaseNative)
+                handler.PlatformView.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
         });
     }
 }
