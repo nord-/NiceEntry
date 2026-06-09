@@ -13,6 +13,10 @@
                              Placeholder="Notch should be cut, no rectangle behind label" />
         </Border>
 
+        <!-- NICEBUTTON-DEV-CHECKS (temporary; removed atomically in Task 9) -->
+        <ne:NiceButton Text="Buy now" Icon="Cart" Orientation="Horizontal" IconPlacement="Start" />
+        <!-- /NICEBUTTON-DEV-CHECKS -->
+
         <ne:LabeledEntry Label="First name or Last name"
                          IsRequired="True"
                          Placeholder="John Doe"
