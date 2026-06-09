@@ -13,7 +13,7 @@ public partial class LabeledDatePicker
         UpdateFontSizeView();
 	}
     
-    public static readonly BindableProperty DateProperty = BindableProperty.Create(nameof(Date), typeof(DateTime), typeof(LabeledDatePicker), propertyChanged: DateChanged, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty DateProperty = BindableProperty.Create(nameof(Date), typeof(DateTime), typeof(LabeledDatePicker), propertyChanged: DateChanged, defaultBindingMode: BindingMode.TwoWay, defaultValueCreator: static _ => DateTime.Today);
     public static readonly BindableProperty MinimumDateProperty = BindableProperty.Create(nameof(MinimumDate), typeof(DateTime), typeof(LabeledDatePicker), DateTime.MinValue, propertyChanged: MinimumDateChanged);
     public static readonly BindableProperty MaximumDateProperty = BindableProperty.Create(nameof(MaximumDate), typeof(DateTime), typeof(LabeledDatePicker), DateTime.MaxValue, propertyChanged: MaximumDateChanged);
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledDatePicker), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);

@@ -19,7 +19,7 @@ public partial class LabeledPicker
     }
     
     public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(LabeledPicker), propertyChanged: ItemSourceChanged, defaultBindingMode: BindingMode.TwoWay);
-    public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), propertyChanged: SelectedIndexChanged, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), -1, propertyChanged: SelectedIndexChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(LabeledPicker), propertyChanged: SelectedItemChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledPicker), propertyChanged: PlaceholderChanged);
     public static readonly BindableProperty TitleColorProperty = BindableProperty.Create(nameof(TitleColor), typeof(Color), typeof(LabeledPicker), Color.FromArgb("#808080"), propertyChanged: TitleColorChanged);
