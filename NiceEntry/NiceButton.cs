@@ -199,8 +199,15 @@ public class NiceButton : Layout
     protected override void OnHandlerChanged()
     {
         base.OnHandlerChanged();
-        if (Handler is null && Command is ICommand cmd)
+        if (Command is ICommand cmd)
+        {
             cmd.CanExecuteChanged -= OnCanExecuteChanged;
+            if (Handler is not null)
+            {
+                cmd.CanExecuteChanged += OnCanExecuteChanged;
+                RefreshEnabledFromCommand();
+            }
+        }
     }
 
     private void OnCanExecuteChanged(object? sender, EventArgs e) => RefreshEnabledFromCommand();
