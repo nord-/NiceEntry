@@ -7,7 +7,7 @@ namespace NiceEntry;
 public class NiceButton : Layout
 {
     /// <summary>Default font size for button text (not the field-tuned LabelBase value).</summary>
-    public static readonly double DefaultFontSize = 14.0;
+    public const double DefaultFontSize = 14.0;
 
     private static readonly Thickness DefaultContentPadding =
         DeviceInfo.Platform == DevicePlatform.iOS ? new Thickness(12, 12) : new Thickness(12, 10);
