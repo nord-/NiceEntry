@@ -15,6 +15,9 @@
 
         <!-- NICEBUTTON-DEV-CHECKS (temporary; removed atomically in Task 9) -->
         <ne:NiceButton Text="Buy now" Icon="Cart" Orientation="Horizontal" IconPlacement="Start" />
+        <ne:NiceButton Icon="ThumbUp" ButtonShape="Circle" />
+        <ne:NiceButton Text="Rounded" ButtonShape="Rounded" CornerRadius="20" />
+        <ne:NiceButton Text="Rectangle" ButtonShape="Rectangle" />
         <!-- /NICEBUTTON-DEV-CHECKS -->
 
         <ne:LabeledEntry Label="First name or Last name"

@@ -1,3 +1,4 @@
+using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
 
 namespace NiceEntry;
@@ -60,10 +61,11 @@ public class NiceButton : Layout
 
         Add(_border);
         RebuildContent();
+        UpdateShapeView();
     }
 
-    /// <summary>True when the button must be measured square (Circle shape). Updated in the shape task.</summary>
-    internal bool ForceSquare => false;
+    /// <summary>True when the button must be measured square (Circle shape).</summary>
+    internal bool ForceSquare => ButtonShape == ButtonShape.Circle;
 
     protected override ILayoutManager CreateLayoutManager() => new NiceButtonLayoutManager(this);
 
@@ -103,6 +105,13 @@ public class NiceButton : Layout
     public static readonly BindableProperty IconSizeProperty = BindableProperty.Create(
         nameof(IconSize), typeof(double), typeof(NiceButton), 20.0, propertyChanged: IconSizeChanged);
 
+    public static readonly BindableProperty ButtonShapeProperty = BindableProperty.Create(
+        nameof(ButtonShape), typeof(ButtonShape), typeof(NiceButton),
+        ButtonShape.Rounded, propertyChanged: ShapeChanged);
+
+    public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(
+        nameof(CornerRadius), typeof(double), typeof(NiceButton), 8.0, propertyChanged: ShapeChanged);
+
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public MaterialIcon? Icon { get => (MaterialIcon?)GetValue(IconProperty); set => SetValue(IconProperty, value); }
     public ButtonContentOrientation Orientation { get => (ButtonContentOrientation)GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
@@ -113,6 +122,8 @@ public class NiceButton : Layout
     public string FontFamily { get => (string)GetValue(FontFamilyProperty); set => SetValue(FontFamilyProperty, value); }
     public FontAttributes FontAttributes { get => (FontAttributes)GetValue(FontAttributesProperty); set => SetValue(FontAttributesProperty, value); }
     public double IconSize { get => (double)GetValue(IconSizeProperty); set => SetValue(IconSizeProperty, value); }
+    public ButtonShape ButtonShape { get => (ButtonShape)GetValue(ButtonShapeProperty); set => SetValue(ButtonShapeProperty, value); }
+    public double CornerRadius { get => (double)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
 
     private static void TextChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateTextView();
     private static void IconChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconView();
@@ -122,6 +133,7 @@ public class NiceButton : Layout
     private static void FontFamilyChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontFamilyView();
     private static void FontAttributesChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontAttributesView();
     private static void IconSizeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconSizeView();
+    private static void ShapeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateShapeView();
 
     private void UpdateTextView()
     {
@@ -140,6 +152,18 @@ public class NiceButton : Layout
     private void UpdateFontFamilyView() => _textLabel.FontFamily = FontFamily;
     private void UpdateFontAttributesView() => _textLabel.FontAttributes = FontAttributes;
     private void UpdateIconSizeView() => _iconLabel.FontSize = IconSize;
+
+    private void UpdateShapeView()
+    {
+        _border.StrokeShape = ButtonShape switch
+        {
+            ButtonShape.Rectangle => new Rectangle(),
+            ButtonShape.Circle => new Ellipse(),
+            _ => new RoundRectangle { CornerRadius = new Microsoft.Maui.CornerRadius(CornerRadius) }
+        };
+
+        InvalidateMeasure();
+    }
 
     /// <summary>
     /// Rebuilds the icon/text container based on what is set (icon-only, label-only, or both)
