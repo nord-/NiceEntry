@@ -221,6 +221,16 @@ Without this call, `Icon` glyphs render as empty boxes.
 
 Icons come from [Material Design Icons](https://pictogrammers.com/library/mdi). Browse the library to find an icon name, then pass it as the `Icon` property value using the `MaterialIcon` enum (e.g. `Icon="Cart"`, `Icon="Account"`, `Icon="ArrowRight"`).
 
+## Third-party licenses
+
+NiceEntry bundles the [Material Design Icons](https://pictogrammers.com/library/mdi/) webfont
+(v7.4.47, from [Templarian/MaterialDesign-Webfont](https://github.com/Templarian/MaterialDesign-Webfont))
+as an embedded resource used by `NiceButton` to render icons.
+
+The font is distributed under the **Apache License, Version 2.0** by the
+[Pictogrammers](https://pictogrammers.com/) icon group.
+Full license text and required attribution notices are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
 ## License
 
 [MIT](LICENSE)
