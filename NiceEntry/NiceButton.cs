@@ -194,6 +194,13 @@ public class NiceButton : Layout
     private static void CommandParameterChanged(BindableObject b, object o, object n)
         => ((NiceButton)b).RefreshEnabledFromCommand();
 
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+        if (Handler is null && Command is ICommand cmd)
+            cmd.CanExecuteChanged -= OnCanExecuteChanged;
+    }
+
     private void OnCanExecuteChanged(object? sender, EventArgs e) => RefreshEnabledFromCommand();
 
     private void RefreshEnabledFromCommand()
@@ -316,13 +323,15 @@ public class NiceButton : Layout
     private async void OnTapped(object? sender, TappedEventArgs e)
     {
         if (!IsEnabled) return;
-        if (Command is { } cmd && !cmd.CanExecute(CommandParameter)) return;
+        var cmd = Command;
+        var param = CommandParameter;
+        if (cmd is null || !cmd.CanExecute(param)) return;
 
         await _contentHost.FadeToAsync(0.3, 100);
         await _contentHost.FadeToAsync(1, 100);
 
-        if (Command is { } toRun && toRun.CanExecute(CommandParameter))
-            toRun.Execute(CommandParameter);
+        if (cmd.CanExecute(param))
+            cmd.Execute(param);
     }
 
     protected override void OnPropertyChanged(string? propertyName = null)
