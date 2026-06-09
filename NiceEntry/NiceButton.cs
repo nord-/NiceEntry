@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
+using System.Windows.Input;
 
 namespace NiceEntry;
 
@@ -73,6 +74,10 @@ public class NiceButton : Layout
             VerticalOptions = LayoutOptions.Fill
         };
 
+        var tap = new TapGestureRecognizer();
+        tap.Tapped += OnTapped;
+        _border.GestureRecognizers.Add(tap);
+
         Add(_border);
         RebuildContent();
         UpdateShapeView();
@@ -144,6 +149,12 @@ public class NiceButton : Layout
     public static readonly BindableProperty CustomShadowProperty = BindableProperty.Create(
         nameof(CustomShadow), typeof(Shadow), typeof(NiceButton), null, propertyChanged: ShadowChanged);
 
+    public static readonly BindableProperty CommandProperty = BindableProperty.Create(
+        nameof(Command), typeof(ICommand), typeof(NiceButton), null, propertyChanged: CommandChanged);
+
+    public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(
+        nameof(CommandParameter), typeof(object), typeof(NiceButton), null, propertyChanged: CommandParameterChanged);
+
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public MaterialIcon? Icon { get => (MaterialIcon?)GetValue(IconProperty); set => SetValue(IconProperty, value); }
     public ButtonContentOrientation Orientation { get => (ButtonContentOrientation)GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
@@ -168,6 +179,28 @@ public class NiceButton : Layout
     /// border (set via this property) renders a shadow.
     /// </summary>
     public Shadow CustomShadow { get => (Shadow)GetValue(CustomShadowProperty); set => SetValue(CustomShadowProperty, value); }
+
+    public ICommand Command { get => (ICommand)GetValue(CommandProperty); set => SetValue(CommandProperty, value); }
+    public object CommandParameter { get => GetValue(CommandParameterProperty); set => SetValue(CommandParameterProperty, value); }
+
+    private static void CommandChanged(BindableObject b, object oldValue, object newValue)
+    {
+        var btn = (NiceButton)b;
+        if (oldValue is ICommand oldCmd) oldCmd.CanExecuteChanged -= btn.OnCanExecuteChanged;
+        if (newValue is ICommand newCmd) newCmd.CanExecuteChanged += btn.OnCanExecuteChanged;
+        btn.RefreshEnabledFromCommand();
+    }
+
+    private static void CommandParameterChanged(BindableObject b, object o, object n)
+        => ((NiceButton)b).RefreshEnabledFromCommand();
+
+    private void OnCanExecuteChanged(object? sender, EventArgs e) => RefreshEnabledFromCommand();
+
+    private void RefreshEnabledFromCommand()
+    {
+        if (Command is { } cmd)
+            IsEnabled = cmd.CanExecute(CommandParameter);
+    }
 
     private static void TextChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateTextView();
     private static void IconChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconView();
@@ -277,7 +310,19 @@ public class NiceButton : Layout
         else if (HasShadow)
             _border.Shadow = new Shadow { Brush = Brush.Black, Opacity = 0.3f, Radius = 8, Offset = new Point(0, 2) };
         else
-            _border.Shadow = null;
+            _border.ClearValue(Border.ShadowProperty);
+    }
+
+    private async void OnTapped(object? sender, TappedEventArgs e)
+    {
+        if (!IsEnabled) return;
+        if (Command is { } cmd && !cmd.CanExecute(CommandParameter)) return;
+
+        await _contentHost.FadeToAsync(0.3, 100);
+        await _contentHost.FadeToAsync(1, 100);
+
+        if (Command is { } toRun && toRun.CanExecute(CommandParameter))
+            toRun.Execute(CommandParameter);
     }
 
     protected override void OnPropertyChanged(string? propertyName = null)
