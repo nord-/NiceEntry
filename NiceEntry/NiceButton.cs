@@ -213,7 +213,10 @@ public class NiceButton : Layout
     {
         var btn = (NiceButton)b;
         if (string.IsNullOrEmpty(o as string) == string.IsNullOrEmpty(n as string))
+        {
             btn._textLabel.Text = (string?)n ?? string.Empty;
+            btn.InvalidateMeasure();
+        }
         else
             btn.RebuildContent();
     }
@@ -222,7 +225,10 @@ public class NiceButton : Layout
     {
         var btn = (NiceButton)b;
         if ((o is MaterialIcon) == (n is MaterialIcon))
+        {
             btn._iconLabel.Text = n is MaterialIcon icon ? char.ConvertFromUtf32((int)icon) : null;
+            btn.InvalidateMeasure();
+        }
         else
             btn.RebuildContent();
     }
