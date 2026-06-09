@@ -18,6 +18,9 @@
         <ne:NiceButton Icon="ThumbUp" ButtonShape="Circle" />
         <ne:NiceButton Text="Rounded" ButtonShape="Rounded" CornerRadius="20" />
         <ne:NiceButton Text="Rectangle" ButtonShape="Rectangle" />
+        <ne:NiceButton Text="Default theme colors" Icon="Check" />
+        <ne:NiceButton Text="Custom" Icon="Star" BackgroundColor="DarkGreen" TextColor="White" />
+        <ne:NiceButton Text="Disabled" Icon="Lock" IsEnabled="False" />
         <!-- /NICEBUTTON-DEV-CHECKS -->
 
         <ne:LabeledEntry Label="First name or Last name"

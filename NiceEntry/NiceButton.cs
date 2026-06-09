@@ -11,6 +11,20 @@ public class NiceButton : Layout
     private static readonly Thickness DefaultContentPadding =
         DeviceInfo.Platform == DevicePlatform.iOS ? new Thickness(12, 12) : new Thickness(12, 10);
 
+    private static readonly Color DefaultBackgroundLight = Color.FromArgb("#3B49DF");
+    private static readonly Color DefaultBackgroundDark = Color.FromArgb("#5965F2");
+    private static readonly Color DefaultForegroundLight = Colors.White;
+    private static readonly Color DefaultForegroundDark = Colors.White;
+    private static readonly Color DisabledBackgroundLight = Color.FromArgb("#E0E0E0");
+    private static readonly Color DisabledBackgroundDark = Color.FromArgb("#3A3A3A");
+    private static readonly Color DisabledForegroundLight = Color.FromArgb("#9E9E9E");
+    private static readonly Color DisabledForegroundDark = Color.FromArgb("#6E6E6E");
+
+    // Background-brush neutralization (see OnPropertyChanged): _userBackgroundBrush holds the
+    // consumer's intended Background brush; the Layout's own Background is forced transparent.
+    private bool _suppressBackground;
+    private Brush? _userBackgroundBrush;
+
     private readonly Border _border;
     private readonly Grid _contentHost;
     private readonly Label _iconLabel;
@@ -62,6 +76,8 @@ public class NiceButton : Layout
         Add(_border);
         RebuildContent();
         UpdateShapeView();
+        UpdateBorderStrokeView();
+        ApplyColors();
     }
 
     /// <summary>True when the button must be measured square (Circle shape).</summary>
@@ -112,6 +128,15 @@ public class NiceButton : Layout
     public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(
         nameof(CornerRadius), typeof(double), typeof(NiceButton), 8.0, propertyChanged: ShapeChanged);
 
+    public static readonly BindableProperty TextColorProperty = BindableProperty.Create(
+        nameof(TextColor), typeof(Color), typeof(NiceButton), null, propertyChanged: ColorChanged);
+
+    public static readonly BindableProperty BorderColorProperty = BindableProperty.Create(
+        nameof(BorderColor), typeof(Color), typeof(NiceButton), null, propertyChanged: BorderStrokeChanged);
+
+    public static readonly BindableProperty BorderWidthProperty = BindableProperty.Create(
+        nameof(BorderWidth), typeof(double), typeof(NiceButton), 0.0, propertyChanged: BorderStrokeChanged);
+
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public MaterialIcon? Icon { get => (MaterialIcon?)GetValue(IconProperty); set => SetValue(IconProperty, value); }
     public ButtonContentOrientation Orientation { get => (ButtonContentOrientation)GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
@@ -124,6 +149,9 @@ public class NiceButton : Layout
     public double IconSize { get => (double)GetValue(IconSizeProperty); set => SetValue(IconSizeProperty, value); }
     public ButtonShape ButtonShape { get => (ButtonShape)GetValue(ButtonShapeProperty); set => SetValue(ButtonShapeProperty, value); }
     public double CornerRadius { get => (double)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
+    public Color TextColor { get => (Color)GetValue(TextColorProperty); set => SetValue(TextColorProperty, value); }
+    public Color BorderColor { get => (Color)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
+    public double BorderWidth { get => (double)GetValue(BorderWidthProperty); set => SetValue(BorderWidthProperty, value); }
 
     private static void TextChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateTextView();
     private static void IconChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconView();
@@ -134,6 +162,8 @@ public class NiceButton : Layout
     private static void FontAttributesChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontAttributesView();
     private static void IconSizeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateIconSizeView();
     private static void ShapeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateShapeView();
+    private static void ColorChanged(BindableObject b, object o, object n) => ((NiceButton)b).ApplyColors();
+    private static void BorderStrokeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateBorderStrokeView();
 
     private void UpdateTextView()
     {
@@ -163,6 +193,84 @@ public class NiceButton : Layout
         };
 
         InvalidateMeasure();
+    }
+
+    private void ApplyColors()
+    {
+        // OnPropertyChanged can fire (e.g. for Background) before the constructor has built
+        // the inner views; bail out until they exist.
+        if (_border is null) return;
+
+        if (!IsEnabled)
+        {
+            _border.ClearValue(BackgroundProperty);
+            _border.SetAppThemeColor(BackgroundColorProperty, DisabledBackgroundLight, DisabledBackgroundDark);
+            SetForeground(DisabledForegroundLight, DisabledForegroundDark, themed: true);
+            return;
+        }
+
+        if (_userBackgroundBrush is not null)
+        {
+            _border.Background = _userBackgroundBrush;
+        }
+        else if (BackgroundColor is not null)
+        {
+            _border.ClearValue(BackgroundProperty);
+            _border.BackgroundColor = BackgroundColor;
+        }
+        else
+        {
+            _border.ClearValue(BackgroundProperty);
+            _border.SetAppThemeColor(BackgroundColorProperty, DefaultBackgroundLight, DefaultBackgroundDark);
+        }
+
+        if (TextColor is not null)
+            SetForeground(TextColor, TextColor, themed: false);
+        else
+            SetForeground(DefaultForegroundLight, DefaultForegroundDark, themed: true);
+    }
+
+    private void SetForeground(Color light, Color dark, bool themed)
+    {
+        if (themed)
+        {
+            _iconLabel.SetAppThemeColor(Label.TextColorProperty, light, dark);
+            _textLabel.SetAppThemeColor(Label.TextColorProperty, light, dark);
+        }
+        else
+        {
+            _iconLabel.TextColor = light;
+            _textLabel.TextColor = light;
+        }
+    }
+
+    private void UpdateBorderStrokeView()
+    {
+        _border.Stroke = BorderColor is null ? null : new SolidColorBrush(BorderColor);
+        _border.StrokeThickness = BorderWidth;
+    }
+
+    protected override void OnPropertyChanged(string? propertyName = null)
+    {
+        base.OnPropertyChanged(propertyName);
+
+        if (_suppressBackground) return;
+
+        if (propertyName == BackgroundColorProperty.PropertyName
+            || propertyName == IsEnabledProperty.PropertyName)
+        {
+            ApplyColors();
+        }
+        else if (propertyName == BackgroundProperty.PropertyName)
+        {
+            // Consumer set a Background brush (e.g. gradient). Capture it for the inner Border,
+            // then force the Layout root back to transparent so it never paints a rectangle.
+            _userBackgroundBrush = ReferenceEquals(Background, Brush.Transparent) ? null : Background;
+            _suppressBackground = true;
+            Background = Brush.Transparent;
+            _suppressBackground = false;
+            ApplyColors();
+        }
     }
 
     /// <summary>
