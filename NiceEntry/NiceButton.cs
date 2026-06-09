@@ -160,6 +160,13 @@ public class NiceButton : Layout
     public Color BorderColor { get => (Color)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
     public double BorderWidth { get => (double)GetValue(BorderWidthProperty); set => SetValue(BorderWidthProperty, value); }
     public bool HasShadow { get => (bool)GetValue(HasShadowProperty); set => SetValue(HasShadowProperty, value); }
+
+    /// <summary>
+    /// A fully custom shadow applied to the button. Takes precedence over <see cref="HasShadow"/>.
+    /// Note: set <see cref="CustomShadow"/>, not the inherited <c>VisualElement.Shadow</c> — the
+    /// Layout root is transparent, so a shadow set on it would not be visible; only the inner
+    /// border (set via this property) renders a shadow.
+    /// </summary>
     public Shadow CustomShadow { get => (Shadow)GetValue(CustomShadowProperty); set => SetValue(CustomShadowProperty, value); }
 
     private static void TextChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateTextView();
