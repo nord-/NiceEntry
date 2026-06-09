@@ -266,6 +266,10 @@ public class NiceButton : Layout
 
     private void ApplyColors()
     {
+        // Guard: Background = Brush.Transparent in the constructor fires OnPropertyChanged
+        // synchronously before _border is assigned.
+        if (_border is null) return;
+
         if (!IsEnabled)
         {
             _border.ClearValue(BackgroundProperty);
