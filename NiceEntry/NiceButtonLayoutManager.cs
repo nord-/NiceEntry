@@ -4,8 +4,10 @@ namespace NiceEntry;
 
 /// <summary>
 /// Lays out the single child (the Border) of a <see cref="NiceButton"/>. When the button
-/// is in Circle shape it returns a square desired size so the ellipse renders as a perfect
-/// circle. This avoids both SizeChanged-driven resizing (layout loops on Android) and
+/// is in Circle shape it measures a square desired size AND inscribes a centered square at
+/// arrange time, so the ellipse renders as a perfect circle even when a parent stretches the
+/// control to non-square bounds (e.g. the default <c>HorizontalOptions.Fill</c> in a stack).
+/// This avoids both SizeChanged-driven resizing (layout loops on Android) and
 /// ContentView.MeasureOverride (unreliable per dotnet/maui#19471).
 /// </summary>
 internal sealed class NiceButtonLayoutManager : ILayoutManager
@@ -38,7 +40,22 @@ internal sealed class NiceButtonLayoutManager : ILayoutManager
         foreach (var child in _button)
         {
             if (child.Visibility == Visibility.Collapsed) continue;
-            child.Arrange(bounds);
+
+            if (_button.ForceSquare)
+            {
+                // Measure squares the desired size, but a parent that stretches this control
+                // (e.g. a VerticalStackLayout with the default HorizontalOptions=Fill) hands us
+                // non-square bounds. Inscribe a centered square so the ellipse renders as a
+                // perfect circle regardless of how we were stretched.
+                var side = Math.Min(bounds.Width, bounds.Height);
+                var x = bounds.X + (bounds.Width - side) / 2;
+                var y = bounds.Y + (bounds.Height - side) / 2;
+                child.Arrange(new Rect(x, y, side, side));
+            }
+            else
+            {
+                child.Arrange(bounds);
+            }
         }
 
         return bounds.Size;
