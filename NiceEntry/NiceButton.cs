@@ -25,6 +25,8 @@ public class NiceButton : Layout
     // consumer's intended Background brush; the Layout's own Background is forced transparent.
     private bool _suppressBackground;
     private Brush? _userBackgroundBrush;
+    private bool _commandEnabled = true;
+    private bool _tapInFlight;
 
     private readonly Border _border;
     private readonly Grid _contentHost;
@@ -205,8 +207,10 @@ public class NiceButton : Layout
 
     private void RefreshEnabledFromCommand()
     {
-        if (Command is { } cmd)
-            IsEnabled = cmd.CanExecute(CommandParameter);
+        var enabled = Command?.CanExecute(CommandParameter) ?? true;
+        if (_commandEnabled == enabled) return;
+        _commandEnabled = enabled;
+        ApplyColors();
     }
 
     private static void TextChanged(BindableObject b, object o, object n)
@@ -270,7 +274,7 @@ public class NiceButton : Layout
         // synchronously before _border is assigned.
         if (_border is null) return;
 
-        if (!IsEnabled)
+        if (!IsEnabled || !_commandEnabled)
         {
             _border.ClearValue(BackgroundProperty);
             _border.SetAppThemeColor(BackgroundColorProperty, DisabledBackgroundLight, DisabledBackgroundDark);
@@ -336,16 +340,27 @@ public class NiceButton : Layout
 
     private async void OnTapped(object? sender, TappedEventArgs e)
     {
-        if (!IsEnabled) return;
+        if (!IsEnabled || !_commandEnabled) return;
+        if (_tapInFlight) return;
+        _tapInFlight = true;
         var cmd = Command;
         var param = CommandParameter;
-        if (cmd is null || !cmd.CanExecute(param)) return;
-
-        await _contentHost.FadeToAsync(0.3, 100);
-        await _contentHost.FadeToAsync(1, 100);
-
-        if (cmd.CanExecute(param))
-            cmd.Execute(param);
+        if (cmd is null || !cmd.CanExecute(param))
+        {
+            _tapInFlight = false;
+            return;
+        }
+        try
+        {
+            await _contentHost.FadeToAsync(0.3, 100);
+            await _contentHost.FadeToAsync(1, 100);
+            if (cmd.CanExecute(param))
+                cmd.Execute(param);
+        }
+        finally
+        {
+            _tapInFlight = false;
+        }
     }
 
     // BackgroundColor and Background are inherited VisualElement properties and cannot
