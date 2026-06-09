@@ -29,6 +29,7 @@
 	<ItemGroup>
 		<None Include="..\README.md" Pack="true" PackagePath="" />
 		<None Include="..\LICENSE" Pack="true" PackagePath="" />
+		<None Include="..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -65,6 +66,10 @@
 	  <MauiXaml Update="LabeledAutoCompleteEntry.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Fonts\materialdesignicons-webfont.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>

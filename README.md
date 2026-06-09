@@ -11,6 +11,7 @@ Labeled input controls for .NET MAUI with built-in validation, required field in
 - **LabeledDatePicker** — Date selector with label
 - **LabeledTimePicker** — Time selector with label
 - **LabeledAutoCompleteEntry** — Entry with inline suggestion dropdown (new in 1.5)
+- **NiceButton** — Standalone tappable icon/text button with shapes, shadow, and command binding
 - Built-in validation error display (red border + error messages)
 - Required field indicator (`*`)
 - Unit suffix label with customizable font, size, and color
@@ -155,6 +156,88 @@ Filter a list of suggestions as the user types. Tap a row to commit it back into
 | `ReturnCommand` | `ICommand` | Command on return key press |
 | `HorizontalTextAlignment` | `TextAlignment` | Text alignment |
 | `FontSize` | `double` | Input text font size |
+
+## NiceButton
+
+`NiceButton` is a standalone tappable button that combines an optional icon (from Material Design Icons) with optional text. It is not part of the labeled-input family — it has no floating label or validation display.
+
+The same buttons in light and dark mode — icon/text layouts, circle/rounded/rectangle shapes, shadow, and theme-aware colors:
+
+<p align="center">
+  <img src="images/nicebutton-light.png" alt="NiceButton variants in light mode" width="300" />
+  &nbsp;&nbsp;
+  <img src="images/nicebutton-dark.png" alt="NiceButton variants in dark mode" width="300" />
+</p>
+
+### Setup
+
+`NiceButton` uses the Material Design Icons font, which must be registered before glyphs render correctly. Call `.UseNiceEntry()` in your `MauiProgram.cs`:
+
+```csharp
+builder.UseMauiApp<App>()
+       .UseNiceEntry();   // registers the Material Design Icons font
+```
+
+Without this call, `Icon` glyphs render as empty boxes.
+
+### Basic example
+
+```xml
+<nice:NiceButton Text="Buy now"
+                 Icon="Cart"
+                 BackgroundColor="#3B49DF"
+                 TextColor="White"
+                 Command="{Binding BuyCommand}" />
+```
+
+### Properties
+
+| Category | Property | Type | Default |
+|----------|----------|------|---------|
+| Content | `Text` | `string` | `""` |
+| Content | `Icon` | `MaterialIcon?` | `null` |
+| Layout | `Orientation` | `ButtonContentOrientation` | `Horizontal` |
+| Layout | `IconPlacement` | `IconPlacement` | `Start` |
+| Layout | `Spacing` | `double` | `6` |
+| Layout | `ContentPadding` | `Thickness` | iOS `(12,12)` / Android `(12,10)` |
+| Shape | `ButtonShape` | `ButtonShape` | `Rounded` |
+| Shape | `CornerRadius` | `double` | `8` |
+| Color | `BackgroundColor` | `Color` | theme |
+| Color | `Background` | `Brush` | – |
+| Color | `TextColor` | `Color` | theme (icon + text) |
+| Color | `BorderColor` | `Color` | transparent |
+| Color | `BorderWidth` | `double` | `0` |
+| Text | `FontSize` | `double` | `NiceButton.DefaultFontSize` (14.0) |
+| Text | `FontFamily` | `string` | – |
+| Text | `FontAttributes` | `FontAttributes` | `None` |
+| Icon | `IconSize` | `double` | `20` |
+| Shadow | `HasShadow` | `bool` | `false` |
+| Shadow | `CustomShadow` | `Shadow` | – |
+| Interaction | `Command` | `ICommand` | – |
+| Interaction | `CommandParameter` | `object` | – |
+| Interaction | `IsEnabled` | `bool` | `true` (inherited) |
+
+### Enums and constants
+
+- **`ButtonShape`** — `Rectangle`, `Rounded`, `Circle`
+- **`ButtonContentOrientation`** — `Horizontal`, `Vertical` (set via the `Orientation` property)
+- **`IconPlacement`** — `Start`, `End`
+- **`MaterialIcon`** — generated enum with codepoint values for every MDI glyph
+- **`NiceButton.DefaultFontSize`** — constant `14.0`
+
+### Icon source
+
+Icons come from [Material Design Icons](https://pictogrammers.com/library/mdi). Browse the library to find an icon name, then pass it as the `Icon` property value using the `MaterialIcon` enum (e.g. `Icon="Cart"`, `Icon="Account"`, `Icon="ArrowRight"`).
+
+## Third-party licenses
+
+NiceEntry bundles the [Material Design Icons](https://pictogrammers.com/library/mdi/) webfont
+(v7.4.47, from [Templarian/MaterialDesign-Webfont](https://github.com/Templarian/MaterialDesign-Webfont))
+as an embedded resource used by `NiceButton` to render icons.
+
+The font is distributed under the **Apache License, Version 2.0** by the
+[Pictogrammers](https://pictogrammers.com/) icon group.
+Full license text and required attribution notices are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 ## License
 
