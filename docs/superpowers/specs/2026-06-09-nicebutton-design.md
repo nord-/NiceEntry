@@ -40,7 +40,10 @@ egen `ILayoutManager`, som hostar en enda MAUI `Border` med internt innehåll (i
 - BindableProperty-proxying enligt NiceEntrys konvention (`{Property}Property`-fält,
   `propertyChanged`-handler, privat `Update{Property}View()`). `BackgroundColor`/`Background`
   är **ärvda** från `VisualElement` och vidarebefordras till inre `Border` via
-  `OnPropertyChanged` (ingen egen BindableProperty — undviker namnkrock).
+  `OnPropertyChanged` (ingen egen BindableProperty — undviker namnkrock). Layout-rotens egen
+  målning neutraliseras (en transparent `Background`-brush vinner över `BackgroundColor` i
+  renderingen) så att fyllningen bara bärs av den formklippta `Border` — annars skulle en
+  satt `BackgroundColor` måla en rektangel bakom de rundade/cirkulära hörnen.
 
 Följer NiceEntrys konventioner: file-scoped namespaces, nullable enabled, implicit usings,
 CRLF, spaces.
