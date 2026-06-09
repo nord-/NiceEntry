@@ -12,11 +12,7 @@ public partial class LabeledEntry
         Element.SetBinding(Entry.TextProperty, nameof(Text), BindingMode.TwoWay);
         Element.BindingContext = this;
 
-        Element.Focused += (_, _) =>
-        {
-            Element.CursorPosition = 0;
-            Element.SelectionLength = Element.Text?.Length ?? 0;
-        };
+        Element.Focused += OnElementFocused;
 
         UpdateFontSizeView();
         UpdatePlaceholderColorView();
@@ -25,7 +21,7 @@ public partial class LabeledEntry
     public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), propertyChanged: TextChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledEntry), propertyChanged: PlaceholderChanged);
     public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(nameof(PlaceholderColor), typeof(Color), typeof(LabeledEntry), Color.FromArgb("#808080"), propertyChanged: PlaceholderColorChanged);
-    public static readonly BindableProperty MaxLengthProperty = BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(int), int.MaxValue, propertyChanged: MaxLengthChanged);
+    public static readonly BindableProperty MaxLengthProperty = BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(LabeledEntry), int.MaxValue, propertyChanged: MaxLengthChanged);
     public static readonly BindableProperty ReturnTypeProperty = BindableProperty.Create(nameof(ReturnType), typeof(ReturnType), typeof(LabeledEntry), propertyChanged: ReturnTypeChanged);
     public static readonly BindableProperty KeyboardProperty = BindableProperty.Create(nameof(Keyboard), typeof(Keyboard), typeof(LabeledEntry), propertyChanged: KeyboardChanged);
     public static readonly BindableProperty IsPasswordProperty = BindableProperty.Create(nameof(IsPassword), typeof(bool), typeof(LabeledEntry), false, propertyChanged: IsPasswordChanged);
@@ -33,6 +29,7 @@ public partial class LabeledEntry
     public static readonly BindableProperty ReturnCommandProperty = BindableProperty.Create(nameof(ReturnCommand), typeof(ICommand), typeof(LabeledEntry), propertyChanged: ReturnCommandChanged);
     public static readonly BindableProperty HorizontalTextAlignmentProperty = BindableProperty.Create(nameof(HorizontalTextAlignment), typeof(TextAlignment), typeof(LabeledEntry), TextAlignment.Start, propertyChanged: HorizontalTextAlignmentChanged);
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledEntry), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);
+    public static readonly BindableProperty SelectAllOnFocusProperty = BindableProperty.Create(nameof(SelectAllOnFocus), typeof(bool), typeof(LabeledEntry), true);
 
     public string Text
     {
@@ -99,7 +96,21 @@ public partial class LabeledEntry
         get => (double)GetValue(FontSizeProperty);
         set => SetValue(FontSizeProperty, value);
     }
-   
+
+    public bool SelectAllOnFocus
+    {
+        get => (bool)GetValue(SelectAllOnFocusProperty);
+        set => SetValue(SelectAllOnFocusProperty, value);
+    }
+
+    private void OnElementFocused(object? sender, FocusEventArgs e)
+    {
+        if (!SelectAllOnFocus) return;
+
+        Element.CursorPosition = 0;
+        Element.SelectionLength = Element.Text?.Length ?? 0;
+    }
+
     private static void TextChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateTextView();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderView();
     private static void PlaceholderColorChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderColorView();

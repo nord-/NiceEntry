@@ -155,6 +155,7 @@ Filter a list of suggestions as the user types. Tap a row to commit it back into
 | `ReturnCommand` | `ICommand` | Command on return key press |
 | `HorizontalTextAlignment` | `TextAlignment` | Text alignment |
 | `FontSize` | `double` | Input text font size |
+| `SelectAllOnFocus` | `bool` | Select all text when the entry gains focus (default `true`) |
 
 ## License
 
