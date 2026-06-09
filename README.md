@@ -161,6 +161,14 @@ Filter a list of suggestions as the user types. Tap a row to commit it back into
 
 `NiceButton` is a standalone tappable button that combines an optional icon (from Material Design Icons) with optional text. It is not part of the labeled-input family — it has no floating label or validation display.
 
+The same buttons in light and dark mode — icon/text layouts, circle/rounded/rectangle shapes, shadow, and theme-aware colors:
+
+<p align="center">
+  <img src="images/nicebutton-light.png" alt="NiceButton variants in light mode" width="300" />
+  &nbsp;&nbsp;
+  <img src="images/nicebutton-dark.png" alt="NiceButton variants in dark mode" width="300" />
+</p>
+
 ### Setup
 
 `NiceButton` uses the Material Design Icons font, which must be registered before glyphs render correctly. Call `.UseNiceEntry()` in your `MauiProgram.cs`:
