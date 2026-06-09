@@ -266,10 +266,6 @@ public class NiceButton : Layout
 
     private void ApplyColors()
     {
-        // OnPropertyChanged can fire (e.g. for Background) before the constructor has built
-        // the inner views; bail out until they exist.
-        if (_border is null) return;
-
         if (!IsEnabled)
         {
             _border.ClearValue(BackgroundProperty);
@@ -309,6 +305,8 @@ public class NiceButton : Layout
         }
         else
         {
+            // Removes active SetAppThemeColor binding before direct assignment; without this
+            // the binding overwrites the explicit color on the next OS theme change.
             _iconLabel.ClearValue(Label.TextColorProperty);
             _textLabel.ClearValue(Label.TextColorProperty);
             _iconLabel.TextColor = light;
@@ -346,6 +344,9 @@ public class NiceButton : Layout
             cmd.Execute(param);
     }
 
+    // BackgroundColor and Background are inherited VisualElement properties and cannot
+    // be re-declared with a custom propertyChanged callback; OnPropertyChanged is the
+    // only way to intercept them.
     protected override void OnPropertyChanged(string? propertyName = null)
     {
         base.OnPropertyChanged(propertyName);
