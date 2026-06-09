@@ -190,10 +190,11 @@ IconSize (double)      — ikonens fontstorlek
 - Consumern registrerar fonten via en ny `MauiAppBuilder`-extension **`.UseNiceEntry()`**
   som internt kallar `ConfigureFonts(...)` och registrerar MDI-fonten. Mönstret matchar
   `.UseCircularPicker()` / `.UseLicensePlate()`.
-- `.UseNiceEntry()` ska vara **idempotent och konfliktfri**: om consumern redan har en egen
-  `ConfigureFonts(...)` eller råkar anropa extensionen två gånger får det inte krascha.
-  `AddFont` med samma alias upprepat är ofarligt (sista vinner), men extensionen ska inte
-  förutsätta att den är ensam om att registrera fonter.
+- `.UseNiceEntry()` ska anropas **exakt en gång** under startup. `ConfigureFonts(...)` lägger
+  till i en font-lista — att registrera `MaterialDesignIcons`-aliaset två gånger ger en
+  duplicerad descriptor och kan trasa font-resolving. Consumern ska alltså inte även
+  registrera samma alias manuellt. (Att consumern har en *egen* `ConfigureFonts` för *andra*
+  fonter är ok; det är just dubbelregistrering av samma alias som ska undvikas.)
 
 Licens: MDI-fonten är Apache-2.0 / SIL OFL — inkludera attribuering i paketet enligt
 licenskrav.

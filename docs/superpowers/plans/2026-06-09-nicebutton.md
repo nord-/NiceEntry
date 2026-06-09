@@ -111,10 +111,14 @@ git commit -m "feat: add NiceButton layout enums"
 <#
     Generates NiceEntry/Icons/MaterialIcon.cs from the Material Design Icons
     webfont _variables.scss (icon name -> codepoint map).
-    Re-run after bumping the MDI version.
+
+    Run this ONLY when intentionally bumping the MDI version — never automatically.
+    The URL is pinned to a concrete tag so re-runs are reproducible; bumping means
+    editing $MdiVersion here AND re-downloading the matching .ttf (Task 2, Step 2).
 #>
 param(
-    [string]$ScssUrl    = "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/scss/_variables.scss",
+    [string]$MdiVersion = "v7.4.47",
+    [string]$ScssUrl    = "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/$MdiVersion/scss/_variables.scss",
     [string]$OutputPath = "$PSScriptRoot/../NiceEntry/Icons/MaterialIcon.cs"
 )
 
@@ -168,14 +172,14 @@ Write-Host "Wrote $($seen.Count) icons to $OutputPath"
 
 - [ ] **Step 2: Download the MDI webfont into `NiceEntry/Fonts/`**
 
-Run:
+Run (URL pinned to the same tag as the generator's `$MdiVersion`):
 ```powershell
 New-Item -ItemType Directory -Force -Path "NiceEntry/Fonts" | Out-Null
 Invoke-WebRequest -UseBasicParsing `
-  -Uri "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/fonts/materialdesignicons-webfont.ttf" `
+  -Uri "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf" `
   -OutFile "NiceEntry/Fonts/materialdesignicons-webfont.ttf"
 ```
-Expected: file `NiceEntry/Fonts/materialdesignicons-webfont.ttf` exists (~1.3 MB).
+Expected: file `NiceEntry/Fonts/materialdesignicons-webfont.ttf` exists (~1.3 MB). The `.ttf` and the generated enum must come from the **same** tag, or glyphs and codepoints can drift apart.
 
 - [ ] **Step 3: Generate `MaterialIcon.cs`**
 
@@ -230,8 +234,10 @@ public static class AppHostBuilderExtensions
     public const string MaterialDesignIconsFontFamily = "MaterialDesignIcons";
 
     /// <summary>
-    /// Registers NiceEntry's bundled fonts (Material Design Icons). Safe to call alongside
-    /// the consumer's own <c>ConfigureFonts</c>; registering the same alias is idempotent.
+    /// Registers NiceEntry's bundled fonts (Material Design Icons). Call exactly once during
+    /// startup. Do NOT also register the <c>MaterialDesignIcons</c> alias manually:
+    /// <c>ConfigureFonts</c> appends to a font list, so a duplicate alias adds a duplicate
+    /// descriptor and can break font resolution.
     /// </summary>
     public static MauiAppBuilder UseNiceEntry(this MauiAppBuilder builder)
     {
@@ -540,13 +546,12 @@ Expected: `Build succeeded`, 0 errors.
 
 - [ ] **Step 4: Add a NiceButton to the demo page**
 
-In `NiceEntryDemoApp/MainPage.xaml`, add inside the `VerticalStackLayout` (e.g. right after the opening `Border` block, before the first `LabeledEntry`):
+In `NiceEntryDemoApp/MainPage.xaml`, add this delimited block inside the `VerticalStackLayout` (e.g. right after the opening `Border` block, before the first `LabeledEntry`). Tasks 5–7 add more buttons **inside** this block; Task 9 removes the whole block atomically by deleting everything between the two markers.
 
 ```xml
-        <ne:NiceButton Text="Buy now"
-                       Icon="Cart"
-                       Orientation="Horizontal"
-                       IconPlacement="Start" />
+        <!-- NICEBUTTON-DEV-CHECKS (temporary; removed atomically in Task 9) -->
+        <ne:NiceButton Text="Buy now" Icon="Cart" Orientation="Horizontal" IconPlacement="Start" />
+        <!-- /NICEBUTTON-DEV-CHECKS -->
 ```
 
 - [ ] **Step 5: Build the demo**
@@ -632,7 +637,7 @@ Expected: `Build succeeded`, 0 errors.
 
 - [ ] **Step 5: Verify shapes in the demo**
 
-In `NiceEntryDemoApp/MainPage.xaml`, temporarily add below the existing NiceButton:
+In `NiceEntryDemoApp/MainPage.xaml`, add these inside the `NICEBUTTON-DEV-CHECKS` block (before the closing `<!-- /NICEBUTTON-DEV-CHECKS -->` marker):
 
 ```xml
         <ne:NiceButton Icon="ThumbUp" ButtonShape="Circle" />
@@ -796,7 +801,7 @@ Expected: `Build succeeded`, 0 errors.
 
 - [ ] **Step 6: Verify colors in the demo**
 
-In `NiceEntryDemoApp/MainPage.xaml`, temporarily add:
+In `NiceEntryDemoApp/MainPage.xaml`, add these inside the `NICEBUTTON-DEV-CHECKS` block (before the closing marker):
 
 ```xml
         <ne:NiceButton Text="Default theme colors" Icon="Check" />
@@ -862,7 +867,7 @@ Expected: `Build succeeded`, 0 errors.
 
 - [ ] **Step 4: Verify shadow in the demo**
 
-In `NiceEntryDemoApp/MainPage.xaml`, temporarily add:
+In `NiceEntryDemoApp/MainPage.xaml`, add these inside the `NICEBUTTON-DEV-CHECKS` block (before the closing marker):
 
 ```xml
         <ne:NiceButton Text="Shadow on" Icon="Star" HasShadow="True" />
@@ -995,7 +1000,7 @@ In `NiceEntryDemoApp/MainPage.xaml.cs`, add these members inside the `MainViewMo
 
 - [ ] **Step 2: Remove the temporary demo buttons and add the showcase section**
 
-In `NiceEntryDemoApp/MainPage.xaml`, delete every `<ne:NiceButton .../>` added in Tasks 4–7, then add this block at the top of the `VerticalStackLayout` (just inside it, before the colored `Border`):
+In `NiceEntryDemoApp/MainPage.xaml`, first delete the entire temporary block — everything from `<!-- NICEBUTTON-DEV-CHECKS ... -->` through `<!-- /NICEBUTTON-DEV-CHECKS -->` inclusive (this removes all dev-check buttons in one atomic edit). Then add this showcase block at the top of the `VerticalStackLayout` (just inside it, before the colored `Border`):
 
 ```xml
         <Label Text="NiceButton" FontSize="20" FontAttributes="Bold" />
