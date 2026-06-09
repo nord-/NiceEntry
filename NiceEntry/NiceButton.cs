@@ -216,6 +216,7 @@ public class NiceButton : Layout
         else if (BackgroundColor is not null)
         {
             _border.ClearValue(BackgroundProperty);
+            _border.ClearValue(BackgroundColorProperty);
             _border.BackgroundColor = BackgroundColor;
         }
         else
@@ -239,6 +240,8 @@ public class NiceButton : Layout
         }
         else
         {
+            _iconLabel.ClearValue(Label.TextColorProperty);
+            _textLabel.ClearValue(Label.TextColorProperty);
             _iconLabel.TextColor = light;
             _textLabel.TextColor = light;
         }
@@ -256,8 +259,13 @@ public class NiceButton : Layout
 
         if (_suppressBackground) return;
 
-        if (propertyName == BackgroundColorProperty.PropertyName
-            || propertyName == IsEnabledProperty.PropertyName)
+        if (propertyName == BackgroundColorProperty.PropertyName)
+        {
+            if (BackgroundColor is not null)
+                _userBackgroundBrush = null;
+            ApplyColors();
+        }
+        else if (propertyName == IsEnabledProperty.PropertyName)
         {
             ApplyColors();
         }
