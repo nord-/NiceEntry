@@ -25,12 +25,18 @@ No test project exists currently.
 
 ### Control Hierarchy
 
-`LabelBase` is the base control — a Grid containing a Label, required indicator (`*`), a Border wrapping a generic View, and error message labels. Each concrete control inherits from `LabelBase` and composes a native MAUI control inside the Border:
+`LabelBase` is the base control — a Grid containing a label (with required indicator `*`) floating over a `NotchedBorder`, plus example and error message labels below. The label sits over the top edge of the border; `LabelBase` computes the notch coordinates so the stroke leaves a gap behind the label text. Each concrete control inherits from `LabelBase` and composes a native MAUI control inside the border:
 
 - **LabeledEntry** → wraps `EntryBase` (platform-specific Entry)
-- **LabeledPicker** → wraps `Picker`
-- **LabeledDatePicker** → wraps `DatePicker`
-- **LabeledTimePicker** → wraps `TimePicker`
+- **LabeledPicker** → wraps `PickerBase`
+- **LabeledDatePicker** → wraps `DatePickerBase`
+- **LabeledTimePicker** → wraps `TimePickerBase`
+
+`LabeledAutoCompleteEntry` is a separate `ContentView` that composes a `LabeledEntry` plus a suggestion dropdown (`CollectionView` in a `Border`), forwarding a subset of `LabeledEntry`'s properties.
+
+### Drawing
+
+`Drawing/NotchedBorder` is an internal-by-convention control (public but `[EditorBrowsable(Never)]`) that renders the outlined border via `Microsoft.Maui.Graphics` (`GraphicsView` + `IDrawable`). The pure path geometry lives in `Drawing/NotchedBorderDrawing.BuildPath`.
 
 ### Key Pattern: BindableProperty Proxying
 
@@ -43,9 +49,9 @@ Each control proxies BindableProperties from the inner MAUI control to the outer
 
 ### Platform-Specific Code
 
-`EntryBase` uses conditional compilation (`#if ANDROID` / `#if IOS`) to select `EntryBaseNative`, which applies platform-specific styling through MAUI handler mappers:
+`EntryBase` uses conditional compilation (`#if ANDROID` / `#if IOS`) to select `EntryBaseNative`; `PickerBase`/`DatePickerBase`/`TimePickerBase` use inline `#if` blocks. All apply platform-specific styling through MAUI handler mappers, filtered on the NiceEntry view type so consumer controls are unaffected:
 - **Android**: Transparent background on the underlying `AppCompatEditText`
-- **iOS**: No border style on the underlying `UITextField`
+- **iOS**: No border style on the underlying `UITextField`; the picker-style controls also override `MeasureOverride` to match the height of a borderless `UITextField` at the current font size (shared cache in `Base/NativeEntryHeight`)
 
 ### Validation
 

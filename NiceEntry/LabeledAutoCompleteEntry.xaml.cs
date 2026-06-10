@@ -29,6 +29,16 @@ public partial class LabeledAutoCompleteEntry
         Entry.Element.Focused += OnEntryFocused;
         Entry.Element.Unfocused += OnEntryUnfocused;
 
+        // Detach the CollectionChanged subscription while unloaded so a
+        // long-lived Suggestions collection doesn't keep this control (and
+        // its page) alive after navigation.
+        Loaded += (_, _) =>
+        {
+            AttachObservedSuggestions();
+            RebuildVisibleSuggestions();
+        };
+        Unloaded += (_, _) => DetachObservedSuggestions();
+
         SuggestionsView.ItemTemplate = DefaultSuggestionTemplate;
     }
 
@@ -67,7 +77,7 @@ public partial class LabeledAutoCompleteEntry
         propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.Keyboard = (Keyboard)n);
 
     public static readonly BindableProperty MaxLengthProperty = BindableProperty.Create(
-        nameof(MaxLength), typeof(int), typeof(LabeledAutoCompleteEntry), defaultValue: -1,
+        nameof(MaxLength), typeof(int), typeof(LabeledAutoCompleteEntry), defaultValue: int.MaxValue,
         propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.MaxLength = (int)n);
 
     public static readonly BindableProperty HorizontalTextAlignmentProperty = BindableProperty.Create(
@@ -121,19 +131,27 @@ public partial class LabeledAutoCompleteEntry
     {
         var self = (LabeledAutoCompleteEntry)bindable;
 
-        if (self._observedSuggestions is not null)
-        {
-            self._observedSuggestions.CollectionChanged -= self.OnSuggestionsCollectionChanged;
-            self._observedSuggestions = null;
-        }
-
-        if (newValue is INotifyCollectionChanged notify)
-        {
-            self._observedSuggestions = notify;
-            notify.CollectionChanged += self.OnSuggestionsCollectionChanged;
-        }
-
+        self.DetachObservedSuggestions();
+        self.AttachObservedSuggestions();
         self.RebuildVisibleSuggestions();
+    }
+
+    private void AttachObservedSuggestions()
+    {
+        if (_observedSuggestions is not null) return;
+        if (!IsLoaded) return;
+        if (Suggestions is not INotifyCollectionChanged notify) return;
+
+        _observedSuggestions = notify;
+        notify.CollectionChanged += OnSuggestionsCollectionChanged;
+    }
+
+    private void DetachObservedSuggestions()
+    {
+        if (_observedSuggestions is null) return;
+
+        _observedSuggestions.CollectionChanged -= OnSuggestionsCollectionChanged;
+        _observedSuggestions = null;
     }
 
     private void OnSuggestionsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

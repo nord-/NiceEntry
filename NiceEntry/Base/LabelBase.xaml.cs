@@ -51,7 +51,7 @@ public partial class LabelBase
     }
 
     // Existing properties
-    public static readonly BindableProperty ViewProperty = BindableProperty.Create("View",
+    public static readonly BindableProperty ViewProperty = BindableProperty.Create(nameof(View),
         typeof(View), typeof(LabelBase), defaultValue: null, defaultBindingMode: BindingMode.OneWay,
         propertyChanged: ElementChanged);
 
@@ -132,6 +132,7 @@ public partial class LabelBase
         _contentGrid.Insert(0, View);
         Grid.SetColumn((BindableObject)View, 0);
         BorderLabel.Content = _contentGrid;
+        UpdateSemanticDescription();
         UpdateIsRequiredView();
     }
 
@@ -154,7 +155,18 @@ public partial class LabelBase
     {
         LabelLabel.Text = Label;
         LabelLabel.IsVisible = !string.IsNullOrEmpty(Label);
+        UpdateSemanticDescription();
         UpdateNotchBounds();
+    }
+
+    // Forward the label text to the inner control so screen readers announce
+    // what the input is for; the visual label is a sibling element and is not
+    // associated with the input by the platform.
+    private void UpdateSemanticDescription()
+    {
+        if (View is null) return;
+
+        SemanticProperties.SetDescription(View, Label);
     }
 
     private void UpdateNotchBounds()
@@ -175,8 +187,12 @@ public partial class LabelBase
     private void UpdateErrorView()
     {
         var count = Error?.Count ?? 0;
-        ErrorLabel.Text = count > 0 ? string.Join(',', Error!) : string.Empty;
+        ErrorLabel.Text = count > 0 ? string.Join(", ", Error!) : string.Empty;
         ErrorLabel.IsVisible = count > 0;
+
+        if (count > 0)
+            SemanticScreenReader.Announce(ErrorLabel.Text);
+
         ChangeBorderColor();
     }
 
