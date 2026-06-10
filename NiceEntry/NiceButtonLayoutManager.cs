@@ -22,7 +22,24 @@ internal sealed class NiceButtonLayoutManager : ILayoutManager
         foreach (var child in _button)
         {
             if (child.Visibility == Visibility.Collapsed) continue;
-            var size = child.Measure(widthConstraint, heightConstraint);
+
+            Size size;
+            if (_button.WrapsText
+                && !double.IsPositiveInfinity(widthConstraint))
+            {
+                // Pass 1: natural size — Star columns act like Auto at infinite width
+                var natural = child.Measure(double.PositiveInfinity, heightConstraint);
+                // Pass 2 only when content overflows the real constraint
+                size = natural.Width <= widthConstraint
+                    ? natural
+                    : child.Measure(widthConstraint, heightConstraint);
+            }
+            else
+            {
+                // Non-wrap: unchanged — measure with real constraint
+                size = child.Measure(widthConstraint, heightConstraint);
+            }
+
             desired = new Size(Math.Max(desired.Width, size.Width), Math.Max(desired.Height, size.Height));
         }
 
