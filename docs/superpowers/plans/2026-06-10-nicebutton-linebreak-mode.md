@@ -4,7 +4,7 @@
 
 **Goal:** Expose `LineBreakMode?` on `NiceButton` with orientation-aware auto-resolution (Vertical→WordWrap, Horizontal→TailTruncation) and fix the underlying layout so word wrap actually works.
 
-**Architecture:** The nullable property defaults to auto-resolution via `EffectiveLineBreakMode`. `RebuildContent()` tracks an explicit `_textColumnDef` so `SetWrappingLayout()` can toggle between `Auto`/`Center` (hugging) and `Star`/`Fill` (bounded). `NiceButtonLayoutManager` does a two-pass measure to preserve hugging behavior for short text while enabling wrap when content overflows.
+**Architecture:** The nullable property defaults to auto-resolution via `EffectiveLineBreakMode`. `RebuildContent()` sets column `GridLength` (Star or Auto) and `_contentHost.HorizontalOptions` (Fill or Center) **statically** based on `EffectiveLineBreakMode` — no layout mutations during measure. `NiceButtonLayoutManager.Measure` does a two-pass measure only for the WordWrap path: pass 1 with infinite width (Star columns act as Auto → natural/hugging size), pass 2 with real constraint only when content overflows. The non-wrap path is unchanged.
 
 **Tech Stack:** .NET MAUI 10, C# 13, `NiceEntry/NiceButton.cs`, `NiceEntry/NiceButtonLayoutManager.cs`, `README.md`
 
@@ -16,7 +16,7 @@
 
 ```powershell
 git checkout master
-git checkout -b fix/nicebutton-linebreak-mode
+git checkout -b feat/nicebutton-linebreak-mode
 ```
 
 ---
@@ -28,20 +28,7 @@ git checkout -b fix/nicebutton-linebreak-mode
 
 The property is nullable so `null` means "auto" (orientation-driven). It reuses `LayoutAffectingChanged` as its handler because changing effective mode must rebuild the grid layout — not just flip a label flag.
 
-- [ ] **Remove the hard-coded `LineBreakMode` from `_textLabel` initialization**
-
-In the constructor block starting at line 95, remove `LineBreakMode = LineBreakMode.TailTruncation,` from `_textLabel`'s initializer. After the change the initializer should be:
-
-```csharp
-_textLabel = new Label
-{
-    HorizontalTextAlignment = TextAlignment.Center,
-    VerticalTextAlignment = TextAlignment.Center,
-    HorizontalOptions = LayoutOptions.Center,
-    VerticalOptions = LayoutOptions.Center,
-    FontSize = FontSize
-};
-```
+The hard-coded `LineBreakMode.TailTruncation` in the constructor is intentionally left in place in this task. MAUI's `Label` default is `WordWrap`, so removing it before `UpdateLineBreakModeView()` is wired (Task 3) would change behavior in the intermediate commit. Both are removed in Task 3 as one atomic change.
 
 - [ ] **Add the BindableProperty declaration** (place it with the other text-style properties, after `FontAttributesProperty`):
 
@@ -79,7 +66,7 @@ private void UpdateLineBreakModeView()
 dotnet build NiceEntry/NiceEntry.csproj
 ```
 
-Expected: build succeeds (0 errors). `UpdateLineBreakModeView` is not yet called anywhere, so behavior is unchanged at this point.
+Expected: 0 errors. `UpdateLineBreakModeView` is not yet wired, so runtime behavior is unchanged (hard-coded TailTruncation still in constructor).
 
 - [ ] **Commit**
 
@@ -90,28 +77,33 @@ git commit -m "feat: add LineBreakMode BindableProperty to NiceButton"
 
 ---
 
-### Task 3: Update `RebuildContent()` and add `SetWrappingLayout()`
+### Task 3: Update `RebuildContent()` to drive layout from effective mode
 
 **Files:**
 - Modify: `NiceEntry/NiceButton.cs`
 
-`RebuildContent()` must (a) always create an explicit text `ColumnDefinition` stored in `_textColumnDef` so `SetWrappingLayout()` can toggle its `Width`, and (b) call `UpdateLineBreakModeView()` at the end. `SetWrappingLayout()` flips `_contentHost.HorizontalOptions` and the column width; it is called by `NiceButtonLayoutManager` during measure.
+`RebuildContent()` is refactored to (a) compute `wrap` from `EffectiveLineBreakMode` and use it to set column `GridLength` (Star or Auto) and `_contentHost.HorizontalOptions` (Fill or Center) **at build time**, and (b) call `UpdateLineBreakModeView()` at the end. No `_textColumnDef` field, no `SetWrappingLayout()` method.
 
-- [ ] **Add `_textColumnDef` field** near the other private fields (after `_tapInFlight`):
+The hard-coded `LineBreakMode.TailTruncation` is removed in this task because `UpdateLineBreakModeView()` now runs in the constructor via `RebuildContent()`.
+
+**Key behavior:** Star columns under an infinite-width constraint return the same natural (hugging) size as Auto columns — so the static Star/Fill state doesn't affect measurement when the parent gives the button unconstrained width. The two-pass logic in Task 4 handles the constrained case.
+
+- [ ] **Remove the hard-coded `LineBreakMode` from `_textLabel` initialization**
+
+In the constructor block at `NiceButton.cs:101`, remove `LineBreakMode = LineBreakMode.TailTruncation,` from `_textLabel`'s initializer. After the change:
 
 ```csharp
-private ColumnDefinition? _textColumnDef;
+_textLabel = new Label
+{
+    HorizontalTextAlignment = TextAlignment.Center,
+    VerticalTextAlignment = TextAlignment.Center,
+    HorizontalOptions = LayoutOptions.Center,
+    VerticalOptions = LayoutOptions.Center,
+    FontSize = FontSize
+};
 ```
 
-- [ ] **Replace the entire `RebuildContent()` method** with the version below.
-
-Key changes vs today:
-- icon+text horizontal: text `ColumnDefinition` is stored in `_textColumnDef`
-- icon+text vertical: add an explicit `ColumnDefinition(Auto)` (one column, two rows) stored in `_textColumnDef` — this lets `SetWrappingLayout` make it `Star` for wrapping
-- text-only: add an explicit `ColumnDefinition(Auto)` stored in `_textColumnDef`
-- icon-only: `_textColumnDef = null` (no text to wrap)
-- `_contentHost.HorizontalOptions` is set based on effective line break mode
-- `UpdateLineBreakModeView()` is called at the end
+- [ ] **Replace the entire `RebuildContent()` method** with the version below:
 
 ```csharp
 private void RebuildContent()
@@ -119,7 +111,6 @@ private void RebuildContent()
     _contentHost.Children.Clear();
     _contentHost.RowDefinitions.Clear();
     _contentHost.ColumnDefinitions.Clear();
-    _textColumnDef = null;
 
     _iconLabel.Text = Icon.HasValue ? char.ConvertFromUtf32((int)Icon.Value) : null;
     _textLabel.Text = Text;
@@ -136,6 +127,10 @@ private void RebuildContent()
         return;
     }
 
+    var wrap = hasText && EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap;
+    var textLen = wrap ? GridLength.Star : GridLength.Auto;
+    _contentHost.HorizontalOptions = wrap ? LayoutOptions.Fill : LayoutOptions.Center;
+
     if (hasIcon && hasText)
     {
         var iconFirst = IconPlacement == IconPlacement.Start;
@@ -144,25 +139,19 @@ private void RebuildContent()
 
         if (Orientation == ButtonContentOrientation.Horizontal)
         {
-            var textCol = new ColumnDefinition(GridLength.Auto);
-            _textColumnDef = textCol;
-
             _contentHost.ColumnSpacing = Spacing;
             _contentHost.RowSpacing = 0;
             _contentHost.ColumnDefinitions.Add(
-                iconFirst ? new ColumnDefinition(GridLength.Auto) : textCol);
+                new ColumnDefinition(iconFirst ? GridLength.Auto : textLen));
             _contentHost.ColumnDefinitions.Add(
-                iconFirst ? textCol : new ColumnDefinition(GridLength.Auto));
+                new ColumnDefinition(iconFirst ? textLen : GridLength.Auto));
             _contentHost.Add(first, 0, 0);
             _contentHost.Add(second, 1, 0);
         }
         else
         {
-            // Vertical: one column (tracked for wrapping), two rows
-            var col = new ColumnDefinition(GridLength.Auto);
-            _textColumnDef = col;
-
-            _contentHost.ColumnDefinitions.Add(col);
+            // Vertical: single column (Star for wrap, Auto otherwise), two rows
+            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textLen));
             _contentHost.RowSpacing = Spacing;
             _contentHost.ColumnSpacing = 0;
             _contentHost.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
@@ -173,34 +162,15 @@ private void RebuildContent()
     }
     else
     {
-        var only = hasIcon ? (View)_iconLabel : _textLabel;
-
         if (hasText)
-        {
-            // Text-only: explicit column so SetWrappingLayout can toggle it
-            var col = new ColumnDefinition(GridLength.Auto);
-            _textColumnDef = col;
-            _contentHost.ColumnDefinitions.Add(col);
-        }
+            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textLen));
 
+        var only = hasIcon ? (View)_iconLabel : _textLabel;
         _contentHost.Add(only, 0, 0);
     }
 
-    // Apply wrapping layout state based on effective line break mode
-    SetWrappingLayout(EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap);
     UpdateLineBreakModeView();
     InvalidateMeasure();
-}
-```
-
-- [ ] **Add `SetWrappingLayout()`** in the `Update*View()` section:
-
-```csharp
-internal void SetWrappingLayout(bool wrapping)
-{
-    _contentHost.HorizontalOptions = wrapping ? LayoutOptions.Fill : LayoutOptions.Center;
-    if (_textColumnDef is not null)
-        _textColumnDef.Width = wrapping ? GridLength.Star : GridLength.Auto;
 }
 ```
 
@@ -216,7 +186,7 @@ Expected: 0 errors.
 
 ```powershell
 git add NiceEntry/NiceButton.cs
-git commit -m "refactor: track text column def and drive wrapping layout from RebuildContent"
+git commit -m "feat: drive NiceButton column layout from EffectiveLineBreakMode in RebuildContent"
 ```
 
 ---
@@ -226,11 +196,13 @@ git commit -m "refactor: track text column def and drive wrapping layout from Re
 **Files:**
 - Modify: `NiceEntry/NiceButtonLayoutManager.cs`
 
-The layout manager already accesses `_button.ForceSquare`; extend it to use `_button.EffectiveLineBreakMode` and `_button.SetWrappingLayout()`.
+The layout manager adds a two-pass measure only for the WordWrap path. No layout properties are mutated during measure — the column state was set statically by `RebuildContent()`.
 
-**Why two passes:** `SetWrappingLayout(true)` gives the label a bounded width (Star column + Fill contentHost), causing the label to report wrapping height. But for short text that fits in the available width, we want the button to hug its content — which requires keeping `Auto`/`Center`. A single pass can't do both. So:
-1. Pass 1 (natural): reset to `Auto`/`Center`, measure with `double.PositiveInfinity`. Gets intrinsic width.
-2. If the natural width overflows the constraint AND effective mode is WordWrap → Pass 2: switch to `Star`/`Fill`, measure with the real `widthConstraint`. Gets wrapping height.
+**Why two passes (WordWrap only):**
+- Pass 1 with `double.PositiveInfinity`: Star columns behave like Auto under infinite constraint → returns the natural hugging size. If this fits within `widthConstraint`, the button hugs its content identically to today.
+- Pass 2 with `widthConstraint` (only when pass 1 overflows): Star column apportions the real available width → label wraps and reports a taller desired size.
+
+**Non-wrap path:** unchanged — measures with `widthConstraint` as before.
 
 - [ ] **Replace `Measure` in `NiceButtonLayoutManager.cs`**:
 
@@ -242,22 +214,21 @@ public Size Measure(double widthConstraint, double heightConstraint)
     {
         if (child.Visibility == Visibility.Collapsed) continue;
 
-        // Pass 1: natural (unconstrained) measurement
-        _button.SetWrappingLayout(false);
-        var natural = child.Measure(double.PositiveInfinity, heightConstraint);
-
         Size size;
         if (_button.EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap
-            && !double.IsPositiveInfinity(widthConstraint)
-            && natural.Width > widthConstraint)
+            && !double.IsPositiveInfinity(widthConstraint))
         {
-            // Pass 2: bounded measurement — text will wrap
-            _button.SetWrappingLayout(true);
-            size = child.Measure(widthConstraint, heightConstraint);
+            // Pass 1: natural size — Star columns act like Auto at infinite width
+            var natural = child.Measure(double.PositiveInfinity, heightConstraint);
+            // Pass 2 only when content overflows the real constraint
+            size = natural.Width <= widthConstraint
+                ? natural
+                : child.Measure(widthConstraint, heightConstraint);
         }
         else
         {
-            size = natural;
+            // Non-wrap: unchanged — measure with real constraint
+            size = child.Measure(widthConstraint, heightConstraint);
         }
 
         desired = new Size(Math.Max(desired.Width, size.Width), Math.Max(desired.Height, size.Height));
@@ -293,7 +264,7 @@ Expected: 0 errors.
 
 ```powershell
 git add NiceEntry/NiceButtonLayoutManager.cs
-git commit -m "fix: two-pass measure in NiceButtonLayoutManager to enable WordWrap without breaking short-text hug"
+git commit -m "feat: two-pass measure for WordWrap in NiceButtonLayoutManager"
 ```
 
 ---
@@ -303,18 +274,14 @@ git commit -m "fix: two-pass measure in NiceButtonLayoutManager to enable WordWr
 **Files:**
 - Modify: `README.md`
 
-Add a row for `LineBreakMode` in the NiceButton property table (line ~213, after the `FontAttributes` row):
+- [ ] **Add row to the NiceButton property table** (after the `FontAttributes` row at ~line 215):
 
-- [ ] **Add row to the property table**
-
-Find this line in the table:
-
+Find:
 ```markdown
 | Text | `FontAttributes` | `FontAttributes` | `None` |
 ```
 
 Add after it:
-
 ```markdown
 | Text | `LineBreakMode` | `LineBreakMode?` | `null` (auto: `WordWrap` for Vertical, `TailTruncation` for Horizontal) |
 ```
@@ -336,7 +303,7 @@ git commit -m "docs: document LineBreakMode property in NiceButton table"
 dotnet build NiceEntry/NiceEntry.csproj && dotnet build NiceEntryDemoApp/NiceEntryDemoApp.csproj
 ```
 
-Expected: 0 errors, 0 warnings about new code.
+Expected: 0 errors.
 
 - [ ] **Pack the library**
 
@@ -348,47 +315,47 @@ Expected: package created under `./nupkgs/`.
 
 - [ ] **Manual smoke test checklist (run demo app on Android or iOS simulator)**
 
-Verify each scenario in the demo app or a temporary XAML snippet:
+Add a temporary XAML snippet or use the demo page:
 
 ```xml
-<!-- Scenario 1: Horizontal default — short text, should hug width as today -->
-<nice:NiceButton Text="Buy now" />
+<!-- Scenario 1: Horizontal default — short text, button must hug width -->
+<nice:NiceButton Text="Buy now" HorizontalOptions="Center" />
 
-<!-- Scenario 2: Horizontal default — long text, should tail-truncate -->
+<!-- Scenario 2: Horizontal default — long text at narrow width, must tail-truncate -->
 <nice:NiceButton Text="This is a very long button label that should truncate"
                  WidthRequest="150" />
 
-<!-- Scenario 3: Vertical default — long text, should wrap (WordWrap auto) -->
+<!-- Scenario 3: Vertical default — long text at narrow width, must wrap -->
 <nice:NiceButton Text="This is a very long button label that should wrap"
                  Orientation="Vertical"
                  WidthRequest="150" />
 
-<!-- Scenario 4: Vertical explicit TailTruncation — should truncate despite vertical -->
+<!-- Scenario 4: Vertical + explicit TailTruncation — must truncate despite vertical -->
 <nice:NiceButton Text="This should truncate even in vertical"
                  Orientation="Vertical"
                  LineBreakMode="TailTruncation"
                  WidthRequest="150" />
 
-<!-- Scenario 5: Horizontal explicit WordWrap — should wrap despite horizontal -->
+<!-- Scenario 5: Horizontal + explicit WordWrap — must wrap despite horizontal -->
 <nice:NiceButton Text="This is a long text that should wrap on a horizontal button"
                  LineBreakMode="WordWrap"
                  WidthRequest="150" />
 
-<!-- Scenario 6: Vertical short text — button must hug content, NOT stretch full width -->
+<!-- Scenario 6: Vertical short text — button must hug, NOT stretch full width -->
 <nice:NiceButton Text="Short"
                  Orientation="Vertical"
                  HorizontalOptions="Center" />
 ```
 
-Expected results:
-- Scenario 1: button width matches text width (hugging) ✓
-- Scenario 2: text ends with "…" at 150px width ✓
-- Scenario 3: text wraps across lines, button taller than scenario 2 ✓
-- Scenario 4: text truncates even though orientation is Vertical ✓
-- Scenario 5: text wraps across lines on a horizontal button ✓
-- Scenario 6: button hugs "Short" text — NOT 150px wide ✓
+Expected:
+- Scenario 1: button width = text width (hugging), NOT full-width ✓
+- Scenario 2: text truncated with "…" at 150 px ✓
+- Scenario 3: text wraps, button taller than S2 ✓
+- Scenario 4: text truncated even on vertical button ✓
+- Scenario 5: text wraps on horizontal button ✓
+- Scenario 6: button width = "Short" width, NOT 150 px ✓
 
-- [ ] **Commit if any last-minute fixes were needed; otherwise the branch is ready**
+- [ ] **Commit any fixes needed; otherwise branch is ready**
 
 ---
 
@@ -397,26 +364,29 @@ Expected results:
 - [ ] **Push branch**
 
 ```powershell
-git push -u origin fix/nicebutton-linebreak-mode
+git push -u origin feat/nicebutton-linebreak-mode
+```
+
+- [ ] **Update issue label from `patch` to `minor` before creating PR**
+
+```powershell
+gh issue edit 31 --remove-label "patch" --add-label "minor"
 ```
 
 - [ ] **Create PR**
 
 ```powershell
 gh pr create `
-  --title "fix: add LineBreakMode to NiceButton with orientation-aware wrapping" `
+  --title "feat: add LineBreakMode to NiceButton with orientation-aware wrapping" `
   --body "Closes #31
 
 ## Changes
-- New nullable \`LineBreakMode\` BindableProperty on \`NiceButton\` (\`null\` = auto, resolved by \`Orientation\`)
-- \`Vertical\` orientation defaults to \`WordWrap\`; \`Horizontal\` retains \`TailTruncation\`
-- Explicit value always wins regardless of orientation
-- Fixed underlying layout: \`RebuildContent()\` tracks the text \`ColumnDefinition\` and \`SetWrappingLayout()\` toggles between \`Auto\`/\`Center\` (hugging) and \`Star\`/\`Fill\` (bounded)
-- \`NiceButtonLayoutManager.Measure\` uses two-pass strategy: natural measure first, bounded re-measure only when content overflows and \`WordWrap\` is active — preserves button hugging for short text
-- README property table updated
-
-## Labels
-\`minor\` (new public API + changed default for vertical buttons)" `
+- New nullable \`LineBreakMode\` BindableProperty (\`null\` = auto: \`WordWrap\` for Vertical, \`TailTruncation\` for Horizontal)
+- Explicit value always wins regardless of \`Orientation\`
+- \`RebuildContent()\` sets column \`GridLength\` (Star/Auto) and \`_contentHost.HorizontalOptions\` (Fill/Center) statically from \`EffectiveLineBreakMode\` — no layout mutations during measure
+- \`NiceButtonLayoutManager.Measure\` uses two-pass strategy for WordWrap: natural measure first (Star acts as Auto at infinity → button hugs short text), bounded re-measure only when content overflows
+- Non-wrap measurement path unchanged
+- README property table updated" `
   --label "enhancement,minor"
 ```
 
@@ -424,27 +394,26 @@ gh pr create `
 
 ## Self-Review
 
-**Spec coverage check:**
+**Spec coverage:**
 
 | Spec requirement | Task |
 |---|---|
 | `LineBreakMode?` BindableProperty, default `null` | Task 2 |
-| `EffectiveLineBreakMode` helper (qualified enum names) | Task 2 |
-| `LayoutAffectingChanged` as handler (triggers `RebuildContent`) | Task 2 |
+| `EffectiveLineBreakMode` qualified enum names | Task 2 |
+| `LayoutAffectingChanged` as handler | Task 2 |
 | `UpdateLineBreakModeView()` called from `RebuildContent()` | Task 3 |
-| Constructor hard-coded `TailTruncation` removed | Task 2 |
-| Track `_textColumnDef` for all cases (icon+text H, icon+text V, text-only) | Task 3 |
-| `SetWrappingLayout(bool)` toggles `_contentHost.HorizontalOptions` + column width | Task 3 |
-| Text-only case: explicit column def so wrapping can be toggled | Task 3 |
-| `NiceButtonLayoutManager` two-pass: natural first, bounded re-measure on overflow+WordWrap | Task 4 |
-| README property table row | Task 5 |
-| Manual smoke test covering all 6 acceptance criteria | Task 6 |
+| Hard-coded `TailTruncation` removed (same commit as wiring) | Task 3 |
+| Column `GridLength` and `HorizontalOptions` set from effective mode | Task 3 |
+| Text-only and vertical icon+text cases have explicit column def | Task 3 |
+| Icon-only: HorizontalOptions stays Center (guard: `wrap = hasText && ...`) | Task 3 |
+| `NiceButtonLayoutManager` two-pass: natural first, bounded on overflow | Task 4 |
+| Non-wrap path unchanged | Task 4 |
+| README row | Task 5 |
+| Smoke test all 6 acceptance criteria incl. hug for short text | Task 6 |
 
-**No gaps found.** All spec requirements are covered.
-
-**Placeholder scan:** No TBD, no "similar to", no missing code blocks. ✓
+**Placeholder scan:** None found. ✓
 
 **Type consistency:**
-- `EffectiveLineBreakMode` returns `Microsoft.Maui.LineBreakMode` (non-nullable) — used by `NiceButtonLayoutManager` as `Microsoft.Maui.LineBreakMode.WordWrap` comparison ✓
-- `SetWrappingLayout(bool)` signature matches all call sites ✓
-- `_textColumnDef` is `ColumnDefinition?` — `null`-guarded in `SetWrappingLayout` ✓
+- `EffectiveLineBreakMode` → `Microsoft.Maui.LineBreakMode` (non-nullable) used in both NiceButton and NiceButtonLayoutManager ✓
+- No `SetWrappingLayout()` call sites (method removed from design) ✓
+- No `_textColumnDef` references (field removed from design) ✓
