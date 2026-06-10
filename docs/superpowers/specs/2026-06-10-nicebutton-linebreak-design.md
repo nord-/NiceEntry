@@ -2,15 +2,18 @@
 
 **Issue:** #31  
 **Date:** 2026-06-10  
-**Label:** patch
+**Semver:** minor (new public API + changed default behavior for vertical buttons)
 
 ---
 
 ## Problem
 
-`NiceButton._textLabel` has a hard-coded `LineBreakMode.TailTruncation`. There is no way for consumers to change this, and for vertical-orientation buttons (icon above/below text) the expected behavior is word wrap — not truncation.
+`NiceButton._textLabel` has a hard-coded `LineBreakMode.TailTruncation`. There is no consumer control over this, and for vertical-orientation buttons the expected behavior is word wrap.
 
-Additionally, `LineBreakMode.WordWrap` has no effect unless the label is measured against a bounded width. The current `_contentHost` grid uses `HorizontalOptions = Center` (auto-size) and `Auto` column definitions, which gives the label infinite measurement width. This must be addressed alongside the property addition.
+Two issues must be addressed together:
+
+1. **Missing API** — `LineBreakMode` is not exposed as a `BindableProperty`.
+2. **Layout blocks wrapping** — `_contentHost` uses `Auto` column definitions, giving the label infinite measurement width. `WordWrap` has no effect without a bounded width constraint. Fixing this requires changes to `NiceButtonLayoutManager`.
 
 ---
 
@@ -20,14 +23,17 @@ Additionally, `LineBreakMode.WordWrap` has no effect unless the label is measure
 
 ```csharp
 public static readonly BindableProperty LineBreakModeProperty = BindableProperty.Create(
-    nameof(LineBreakMode), typeof(LineBreakMode?), typeof(NiceButton), null,
-    propertyChanged: LineBreakModeChanged);
+    nameof(LineBreakMode), typeof(Microsoft.Maui.LineBreakMode?), typeof(NiceButton), null,
+    propertyChanged: LayoutAffectingChanged);
 
-public LineBreakMode? LineBreakMode { get; set; }
+public Microsoft.Maui.LineBreakMode? LineBreakMode
+{
+    get => (Microsoft.Maui.LineBreakMode?)GetValue(LineBreakModeProperty);
+    set => SetValue(LineBreakModeProperty, value);
+}
 ```
 
-Type: `LineBreakMode?` (nullable).  
-Default: `null` — means **auto**, resolved by orientation at render time.
+Type: `LineBreakMode?` (nullable). Default: `null` — means **auto**, resolved by orientation.
 
 **Auto resolution:**
 - `Horizontal` orientation → `TailTruncation`
@@ -35,68 +41,80 @@ Default: `null` — means **auto**, resolved by orientation at render time.
 
 **Explicit value:** always wins regardless of orientation.
 
+The property reuses `LayoutAffectingChanged` as its handler (same as `OrientationProperty`), because changing the effective mode requires rebuilding the grid layout — not just setting a flag on the label.
+
 ### Effective mode helper
 
-A private helper computes the resolved value used internally:
-
 ```csharp
-private LineBreakMode EffectiveLineBreakMode =>
+internal Microsoft.Maui.LineBreakMode EffectiveLineBreakMode =>
     LineBreakMode ?? (Orientation == ButtonContentOrientation.Vertical
-        ? LineBreakMode.WordWrap
-        : LineBreakMode.TailTruncation);
+        ? Microsoft.Maui.LineBreakMode.WordWrap
+        : Microsoft.Maui.LineBreakMode.TailTruncation);
 ```
 
-### Layout changes in `RebuildContent()`
+The enum type is fully qualified to avoid the naming conflict with the property `LineBreakMode`.
 
-`WordWrap` only works when the label has a bounded width. `RebuildContent()` must set layout options dynamically based on `EffectiveLineBreakMode`:
-
-**When `EffectiveLineBreakMode == WordWrap`:**
-- `_contentHost.HorizontalOptions = LayoutOptions.Fill`
-- Text column/row definition: `GridLength.Star`
-
-**Otherwise (TailTruncation or other truncating modes):**
-- `_contentHost.HorizontalOptions = LayoutOptions.Center`
-- Text column/row definition: `GridLength.Auto`
-
-The icon column/row always remains `Auto`.
-
-### Update method
+### `UpdateLineBreakModeView()`
 
 ```csharp
 private void UpdateLineBreakModeView()
-{
-    _textLabel.LineBreakMode = EffectiveLineBreakMode;
-}
+    => _textLabel.LineBreakMode = EffectiveLineBreakMode;
 ```
 
-Called from:
-- `LineBreakModeChanged` handler
-- `RebuildContent()` (because orientation affects effective mode)
-- Constructor (replaces the hard-coded `TailTruncation`)
+Called from `RebuildContent()` (which already runs whenever `LayoutAffectingChanged` fires).
 
 ### Constructor change
 
-Remove the hard-coded `LineBreakMode = LineBreakMode.TailTruncation` from `_textLabel` initialization. Call `UpdateLineBreakModeView()` after `RebuildContent()` in the constructor (or inside `RebuildContent()` itself).
+Remove the hard-coded `LineBreakMode = LineBreakMode.TailTruncation` from `_textLabel` initialization. The value is set via `UpdateLineBreakModeView()` inside `RebuildContent()`.
 
-### `OrientationProperty` change handler
+---
 
-`OrientationProperty` already triggers `RebuildContent()` via `LayoutAffectingChanged`. Since `RebuildContent()` will call `UpdateLineBreakModeView()`, no extra wiring is needed for orientation changes.
+## Layout: two-pass measurement in `NiceButtonLayoutManager`
+
+`NiceButtonLayoutManager` is **in scope**. Setting `Star` columns + `Fill` options on `_contentHost` unconditionally would report the full constraint width as the desired size even for short text, breaking single-line button sizing. A two-pass approach avoids this.
+
+**Pass 1 — natural (unconstrained):**
+Measure `_border` with `double.PositiveInfinity` as width. This gives the content's intrinsic width regardless of wrapping.
+
+**Decision:**
+- If `natural.Width ≤ widthConstraint` **or** `EffectiveLineBreakMode != WordWrap`: use the natural measurement as desired size (button hugs content, identical to today).
+- If `natural.Width > widthConstraint` **and** `EffectiveLineBreakMode == WordWrap`: proceed to pass 2.
+
+**Pass 2 — constrained:**
+Before measuring: set `_contentHost.HorizontalOptions = Fill` and the text column definition to `Star` (so the Grid propagates the bounded constraint to the label). Measure `_border` with `widthConstraint`. The label now wraps. Report this as desired size; leave the column in `Star`/`Fill` state so `ArrangeChildren` lays out correctly.
+
+After pass 2, reset `_contentHost.HorizontalOptions = Center` and text column to `Auto` at the end of arrange — or keep a flag on `NiceButton` (`internal bool _wrappingActive`) that `RebuildContent()` and the layout manager both read, to avoid re-measuring on arrange.
+
+`NiceButtonLayoutManager` accesses `_button.EffectiveLineBreakMode` directly (it already accesses `_button.ForceSquare`).
+
+### Text-only case
+
+`RebuildContent()`'s else-branch (icon-only or text-only, no explicit column definitions) must also set `_contentHost.HorizontalOptions`:
+- When effective mode is `WordWrap`: `Fill`
+- Otherwise: `Center`
+
+Without this, the implicit single-column grid still receives an infinite constraint and wrapping is suppressed.
+
+---
+
+## Scope
+
+| In scope | Out of scope |
+|---|---|
+| `LineBreakMode` BindableProperty | `MaxLines` property |
+| `UpdateLineBreakModeView()` helper | Unrelated layout cleanup |
+| `NiceButtonLayoutManager` two-pass measure | Demo app changes (issue validation can be done manually) |
+| README `NiceButton` property table — add row for `LineBreakMode` | |
+
+**Note on demo/validation:** Issue #31 requests demo cases (short title, long wrapping title, narrow button). These are not added to the demo app as part of this change but can be validated manually against the acceptance criteria below.
 
 ---
 
 ## Acceptance criteria
 
-- `NiceButton` with `Orientation="Vertical"` and long text wraps across multiple lines.
-- `NiceButton` with `Orientation="Horizontal"` (default) truncates with tail truncation as before.
-- Explicitly setting `LineBreakMode="WordWrap"` on a horizontal button enables wrapping.
-- Explicitly setting `LineBreakMode="TailTruncation"` on a vertical button truncates.
-- Short single-line text on any orientation renders identically to before.
-- Layout/alignment remains visually stable.
-
----
-
-## Out of scope
-
-- `MaxLines` property (not in issue #31).
-- Changes to `NiceButtonLayoutManager`.
-- Demo app additions (validation done manually or in existing demo page).
+1. `NiceButton` with `Orientation="Vertical"` and long text wraps across multiple lines.
+2. `NiceButton` with default `Orientation="Horizontal"` truncates with tail truncation, identical to current behavior.
+3. Explicitly setting `LineBreakMode="WordWrap"` on a horizontal button enables wrapping.
+4. Explicitly setting `LineBreakMode="TailTruncation"` on a vertical button truncates.
+5. Short single-line text on any orientation renders with identical size/alignment to today (two-pass ensures this).
+6. Changing `Orientation` at runtime updates the effective line break mode when `LineBreakMode` is `null`.
