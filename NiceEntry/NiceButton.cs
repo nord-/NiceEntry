@@ -121,6 +121,14 @@ public class NiceButton : Layout
         tap.Tapped += OnTapped;
         _border.GestureRecognizers.Add(tap);
 
+        // The layout root is the single accessibility element (see the handler mapper), and
+        // screen-reader activation targets that element rather than the inner border. Recognize
+        // taps on the root too so the button is operable via TalkBack/VoiceOver; the _tapInFlight
+        // guard in OnTapped keeps a single sighted tap from firing the command twice.
+        var rootTap = new TapGestureRecognizer();
+        rootTap.Tapped += OnTapped;
+        GestureRecognizers.Add(rootTap);
+
         Add(_border);
         RebuildContent();
         UpdateShapeView();

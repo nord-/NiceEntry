@@ -111,6 +111,11 @@ public partial class LabeledAutoCompleteEntry
 
     public static readonly BindableProperty ContentPaddingProperty = BindableProperty.Create(
         nameof(ContentPadding), typeof(Thickness), typeof(LabeledAutoCompleteEntry),
+#if IOS
+        defaultValue: new Thickness(12, 12),
+#else
+        defaultValue: new Thickness(12, 10),
+#endif
         propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.ContentPadding = (Thickness)n);
 
     public static readonly BindableProperty UnitProperty = BindableProperty.Create(
