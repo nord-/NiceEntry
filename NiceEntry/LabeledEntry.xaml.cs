@@ -12,13 +12,22 @@ public partial class LabeledEntry
         Element.SetBinding(Entry.TextProperty, nameof(Text), BindingMode.TwoWay);
         Element.BindingContext = this;
 
-        Element.Focused += OnElementFocused;
+        // Attach/detach the Focused handler with the control's load lifecycle so the
+        // inner Element doesn't keep the subscription (and a back-reference) alive
+        // across recycling. Detach-before-attach guards against duplicate handlers
+        // if Loaded fires more than once.
+        Loaded += (_, _) =>
+        {
+            Element.Focused -= OnElementFocused;
+            Element.Focused += OnElementFocused;
+        };
+        Unloaded += (_, _) => Element.Focused -= OnElementFocused;
 
         UpdateFontSizeView();
         UpdatePlaceholderColorView();
     }
     
-    public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), propertyChanged: TextChanged, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledEntry), propertyChanged: PlaceholderChanged);
     public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(nameof(PlaceholderColor), typeof(Color), typeof(LabeledEntry), Color.FromArgb("#808080"), propertyChanged: PlaceholderColorChanged);
     public static readonly BindableProperty MaxLengthProperty = BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(LabeledEntry), int.MaxValue, propertyChanged: MaxLengthChanged);
@@ -111,7 +120,6 @@ public partial class LabeledEntry
         Element.SelectionLength = Element.Text?.Length ?? 0;
     }
 
-    private static void TextChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateTextView();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderView();
     private static void PlaceholderColorChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdatePlaceholderColorView();
     private static void KeyboardChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateKeyboardView();
@@ -123,7 +131,6 @@ public partial class LabeledEntry
     private static void HorizontalTextAlignmentChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateHorizontalTextAlignmentView();
     private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateFontSizeView();
     
-    private void UpdateTextView() => Element.Text = Text;
     private void UpdatePlaceholderView() => Element.Placeholder = Placeholder;
     private void UpdatePlaceholderColorView() => Element.PlaceholderColor = PlaceholderColor;
     private void UpdateKeyboardView() => Element.Keyboard = Keyboard;

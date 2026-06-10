@@ -18,12 +18,13 @@ public partial class LabeledPicker
         UpdateTitleColorView();
     }
     
-    public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(LabeledPicker), propertyChanged: ItemSourceChanged, defaultBindingMode: BindingMode.TwoWay);
-    public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), -1, propertyChanged: SelectedIndexChanged, defaultBindingMode: BindingMode.TwoWay);
-    public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(LabeledPicker), propertyChanged: SelectedItemChanged, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(LabeledPicker), defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), -1, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(LabeledPicker), defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledPicker), propertyChanged: PlaceholderChanged);
     public static readonly BindableProperty TitleColorProperty = BindableProperty.Create(nameof(TitleColor), typeof(Color), typeof(LabeledPicker), Color.FromArgb("#808080"), propertyChanged: TitleColorChanged);
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledPicker), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);
+    public static readonly BindableProperty ItemDisplayBindingProperty = BindableProperty.Create(nameof(ItemDisplayBinding), typeof(BindingBase), typeof(LabeledPicker), propertyChanged: ItemDisplayBindingChanged);
 
     public int SelectedIndex
     {
@@ -63,21 +64,17 @@ public partial class LabeledPicker
 
     public BindingBase ItemDisplayBinding
     {
-        get => Element?.ItemDisplayBinding!;
-        set => Element.ItemDisplayBinding = value;
+        get => (BindingBase)GetValue(ItemDisplayBindingProperty);
+        set => SetValue(ItemDisplayBindingProperty, value);
     }
 
-    private static void ItemSourceChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateItemSourceView();
-    private static void SelectedIndexChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateSelectedIndex();
-    private static void SelectedItemChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateSelectedItem();
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdatePlaceholder();
     private static void TitleColorChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateTitleColorView();
     private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateFontSizeView();
-    
-    private void UpdateItemSourceView() => Element.ItemsSource = ItemsSource;
-    private void UpdateSelectedIndex() => Element.SelectedIndex = SelectedIndex;
-    private void UpdateSelectedItem() => Element.SelectedItem = SelectedItem;
+    private static void ItemDisplayBindingChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateItemDisplayBinding();
+
     private void UpdatePlaceholder() => Element.Title = Placeholder;
     private void UpdateFontSizeView() => Element.FontSize = FontSize;
     private void UpdateTitleColorView() => Element.TitleColor = TitleColor;
+    private void UpdateItemDisplayBinding() => Element.ItemDisplayBinding = ItemDisplayBinding;
 }
