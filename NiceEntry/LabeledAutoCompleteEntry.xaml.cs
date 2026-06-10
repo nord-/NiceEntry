@@ -85,6 +85,50 @@ public partial class LabeledAutoCompleteEntry
         defaultValue: TextAlignment.Start,
         propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.HorizontalTextAlignment = (TextAlignment)n);
 
+    public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(
+        nameof(FontSize), typeof(double), typeof(LabeledAutoCompleteEntry), defaultValue: LabelBase.DefaultFontSize,
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.FontSize = (double)n);
+
+    public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(
+        nameof(PlaceholderColor), typeof(Color), typeof(LabeledAutoCompleteEntry), defaultValue: Color.FromArgb("#808080"),
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.PlaceholderColor = (Color)n);
+
+    public static readonly BindableProperty IsPasswordProperty = BindableProperty.Create(
+        nameof(IsPassword), typeof(bool), typeof(LabeledAutoCompleteEntry), defaultValue: false,
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.IsPassword = (bool)n);
+
+    public static readonly BindableProperty IsReadOnlyProperty = BindableProperty.Create(
+        nameof(IsReadOnly), typeof(bool), typeof(LabeledAutoCompleteEntry), defaultValue: false,
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.IsReadOnly = (bool)n);
+
+    public static readonly BindableProperty SelectAllOnFocusProperty = BindableProperty.Create(
+        nameof(SelectAllOnFocus), typeof(bool), typeof(LabeledAutoCompleteEntry), defaultValue: true,
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.SelectAllOnFocus = (bool)n);
+
+    public static readonly BindableProperty ExampleProperty = BindableProperty.Create(
+        nameof(Example), typeof(string), typeof(LabeledAutoCompleteEntry),
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.Example = (string)n);
+
+    public static readonly BindableProperty ContentPaddingProperty = BindableProperty.Create(
+        nameof(ContentPadding), typeof(Thickness), typeof(LabeledAutoCompleteEntry),
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.ContentPadding = (Thickness)n);
+
+    public static readonly BindableProperty UnitProperty = BindableProperty.Create(
+        nameof(Unit), typeof(string), typeof(LabeledAutoCompleteEntry),
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.Unit = (string)n);
+
+    public static readonly BindableProperty UnitFontFamilyProperty = BindableProperty.Create(
+        nameof(UnitFontFamily), typeof(string), typeof(LabeledAutoCompleteEntry),
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.UnitFontFamily = (string)n);
+
+    public static readonly BindableProperty UnitFontSizeProperty = BindableProperty.Create(
+        nameof(UnitFontSize), typeof(double), typeof(LabeledAutoCompleteEntry), defaultValue: LabelBase.DefaultFontSize,
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.UnitFontSize = (double)n);
+
+    public static readonly BindableProperty UnitColorProperty = BindableProperty.Create(
+        nameof(UnitColor), typeof(Color), typeof(LabeledAutoCompleteEntry),
+        propertyChanged: (b, _, n) => ((LabeledAutoCompleteEntry)b).Entry.UnitColor = (Color)n);
+
     // Local to the autocomplete control
     public static readonly BindableProperty SuggestionsProperty = BindableProperty.Create(
         nameof(Suggestions), typeof(IEnumerable), typeof(LabeledAutoCompleteEntry),
@@ -101,6 +145,11 @@ public partial class LabeledAutoCompleteEntry
     public static readonly BindableProperty CommitOnUpperCaseProperty = BindableProperty.Create(
         nameof(CommitOnUpperCase), typeof(bool), typeof(LabeledAutoCompleteEntry), defaultValue: false);
 
+    // Extracts the committed text from a selected suggestion. When null, ToString() is used,
+    // which only makes sense for string suggestions or objects with a meaningful ToString().
+    public static readonly BindableProperty SuggestionTextSelectorProperty = BindableProperty.Create(
+        nameof(SuggestionTextSelector), typeof(Func<object, string>), typeof(LabeledAutoCompleteEntry));
+
     public string Label { get => (string)GetValue(LabelProperty); set => SetValue(LabelProperty, value); }
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public string Placeholder { get => (string)GetValue(PlaceholderProperty); set => SetValue(PlaceholderProperty, value); }
@@ -115,6 +164,18 @@ public partial class LabeledAutoCompleteEntry
     public int MaxSuggestions { get => (int)GetValue(MaxSuggestionsProperty); set => SetValue(MaxSuggestionsProperty, value); }
     public DataTemplate SuggestionTemplate { get => (DataTemplate)GetValue(SuggestionTemplateProperty); set => SetValue(SuggestionTemplateProperty, value); }
     public bool CommitOnUpperCase { get => (bool)GetValue(CommitOnUpperCaseProperty); set => SetValue(CommitOnUpperCaseProperty, value); }
+    public Func<object, string>? SuggestionTextSelector { get => (Func<object, string>?)GetValue(SuggestionTextSelectorProperty); set => SetValue(SuggestionTextSelectorProperty, value); }
+    public double FontSize { get => (double)GetValue(FontSizeProperty); set => SetValue(FontSizeProperty, value); }
+    public Color PlaceholderColor { get => (Color)GetValue(PlaceholderColorProperty); set => SetValue(PlaceholderColorProperty, value); }
+    public bool IsPassword { get => (bool)GetValue(IsPasswordProperty); set => SetValue(IsPasswordProperty, value); }
+    public bool IsReadOnly { get => (bool)GetValue(IsReadOnlyProperty); set => SetValue(IsReadOnlyProperty, value); }
+    public bool SelectAllOnFocus { get => (bool)GetValue(SelectAllOnFocusProperty); set => SetValue(SelectAllOnFocusProperty, value); }
+    public string Example { get => (string)GetValue(ExampleProperty); set => SetValue(ExampleProperty, value); }
+    public Thickness ContentPadding { get => (Thickness)GetValue(ContentPaddingProperty); set => SetValue(ContentPaddingProperty, value); }
+    public string Unit { get => (string)GetValue(UnitProperty); set => SetValue(UnitProperty, value); }
+    public string UnitFontFamily { get => (string)GetValue(UnitFontFamilyProperty); set => SetValue(UnitFontFamilyProperty, value); }
+    public double UnitFontSize { get => (double)GetValue(UnitFontSizeProperty); set => SetValue(UnitFontSizeProperty, value); }
+    public Color UnitColor { get => (Color)GetValue(UnitColorProperty); set => SetValue(UnitColorProperty, value); }
 
     private static void TextChanged(BindableObject bindable, object oldValue, object newValue)
     {
@@ -197,7 +258,10 @@ public partial class LabeledAutoCompleteEntry
     {
         if (e.CurrentSelection.Count == 0) return;
 
-        var picked = e.CurrentSelection[0]?.ToString();
+        var selected = e.CurrentSelection[0];
+        var picked = selected is null
+            ? null
+            : SuggestionTextSelector?.Invoke(selected) ?? selected.ToString();
         SuggestionsView.SelectedItem = null;
 
         if (picked is null) return;
