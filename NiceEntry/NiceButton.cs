@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Layouts;
 using System.Windows.Input;
 
@@ -6,6 +7,45 @@ namespace NiceEntry;
 
 public class NiceButton : Layout
 {
+    static NiceButton()
+    {
+        // Announce the control as a button to screen readers. The Layout root renders as a
+        // plain container by default, so without this TalkBack/VoiceOver wouldn't expose a
+        // button role. The accessible name comes from SemanticProperties.Description (set from
+        // Text or SemanticDescription). Filtered on the NiceButton type so other layouts are
+        // unaffected.
+#if ANDROID
+        LayoutHandler.Mapper.AppendToMapping("NiceButtonAccessibility", (handler, view) =>
+        {
+            if (view is NiceButton)
+            {
+                handler.PlatformView.ImportantForAccessibility = Android.Views.ImportantForAccessibility.Yes;
+                handler.PlatformView.SetAccessibilityDelegate(new ButtonAccessibilityDelegate());
+            }
+        });
+#elif IOS
+        LayoutHandler.Mapper.AppendToMapping("NiceButtonAccessibility", (handler, view) =>
+        {
+            if (view is NiceButton)
+            {
+                handler.PlatformView.IsAccessibilityElement = true;
+                handler.PlatformView.AccessibilityTraits = UIKit.UIAccessibilityTrait.Button;
+            }
+        });
+#endif
+    }
+
+#if ANDROID
+    private sealed class ButtonAccessibilityDelegate : Android.Views.View.AccessibilityDelegate
+    {
+        public override void OnInitializeAccessibilityNodeInfo(Android.Views.View host, Android.Views.Accessibility.AccessibilityNodeInfo info)
+        {
+            base.OnInitializeAccessibilityNodeInfo(host, info);
+            info.ClassName = "android.widget.Button";
+        }
+    }
+#endif
+
     /// <summary>Default font size for button text (not the field-tuned LabelBase value).</summary>
     public const double DefaultFontSize = 14.0;
 
@@ -87,6 +127,7 @@ public class NiceButton : Layout
         UpdateBorderStrokeView();
         ApplyColors();
         UpdateShadowView();
+        UpdateSemanticDescription();
     }
 
     /// <summary>True when the button must be measured square (Circle shape).</summary>
@@ -101,6 +142,9 @@ public class NiceButton : Layout
 
     public static readonly BindableProperty IconProperty = BindableProperty.Create(
         nameof(Icon), typeof(MaterialIcon?), typeof(NiceButton), null, propertyChanged: IconChanged);
+
+    public static readonly BindableProperty SemanticDescriptionProperty = BindableProperty.Create(
+        nameof(SemanticDescription), typeof(string), typeof(NiceButton), null, propertyChanged: SemanticDescriptionChanged);
 
     public static readonly BindableProperty OrientationProperty = BindableProperty.Create(
         nameof(Orientation), typeof(ButtonContentOrientation), typeof(NiceButton),
@@ -166,6 +210,12 @@ public class NiceButton : Layout
 
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public MaterialIcon? Icon { get => (MaterialIcon?)GetValue(IconProperty); set => SetValue(IconProperty, value); }
+
+    /// <summary>
+    /// Accessible name announced by screen readers. Defaults to <see cref="Text"/> when not set;
+    /// set this explicitly for icon-only buttons, which otherwise have no accessible name.
+    /// </summary>
+    public string SemanticDescription { get => (string)GetValue(SemanticDescriptionProperty); set => SetValue(SemanticDescriptionProperty, value); }
     public ButtonContentOrientation Orientation { get => (ButtonContentOrientation)GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
     public IconPlacement IconPlacement { get => (IconPlacement)GetValue(IconPlacementProperty); set => SetValue(IconPlacementProperty, value); }
     public double Spacing { get => (double)GetValue(SpacingProperty); set => SetValue(SpacingProperty, value); }
@@ -240,7 +290,18 @@ public class NiceButton : Layout
         }
         else
             btn.RebuildContent();
+
+        btn.UpdateSemanticDescription();
     }
+
+    private static void SemanticDescriptionChanged(BindableObject b, object o, object n)
+        => ((NiceButton)b).UpdateSemanticDescription();
+
+    // Prefer the explicit SemanticDescription; fall back to Text so text buttons are announced
+    // without extra configuration. Icon-only buttons have no Text, so SemanticDescription is the
+    // only way to give them an accessible name.
+    private void UpdateSemanticDescription()
+        => SemanticProperties.SetDescription(this, string.IsNullOrEmpty(SemanticDescription) ? Text : SemanticDescription);
 
     private static void IconChanged(BindableObject b, object o, object n)
     {
