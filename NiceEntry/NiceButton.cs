@@ -102,6 +102,9 @@ public class NiceButton : Layout
             FontSize = FontSize
         };
 
+        NeutralizeInheritedVisualStates(_iconLabel);
+        NeutralizeInheritedVisualStates(_textLabel);
+
         _contentHost = new Grid
         {
             HorizontalOptions = LayoutOptions.Center,
@@ -136,6 +139,21 @@ public class NiceButton : Layout
         ApplyColors();
         UpdateShadowView();
         UpdateSemanticDescription();
+    }
+
+    // Stock MAUI app templates ship an implicit Label style whose CommonStates/Disabled visual
+    // state sets a grey TextColor. When the button is disabled, IsEnabled propagates to the inner
+    // labels and that inherited style attaches its visual states to them — and visual-state setters
+    // outrank locally-set values, so they override the colors ApplyColors assigns (defeating both the
+    // disabled-contrast handling and DisabledTextColor). Giving each label its own element-level
+    // CommonStates group with empty states suppresses the inherited style's states (an element-level
+    // group outranks a style-level one), leaving ApplyColors with the final say.
+    private static void NeutralizeInheritedVisualStates(VisualElement label)
+    {
+        var common = new VisualStateGroup { Name = "CommonStates" };
+        common.States.Add(new VisualState { Name = "Normal" });
+        common.States.Add(new VisualState { Name = "Disabled" });
+        VisualStateManager.SetVisualStateGroups(label, new VisualStateGroupList { common });
     }
 
     /// <summary>True when the button must be measured square (Circle shape).</summary>

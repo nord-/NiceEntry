@@ -235,6 +235,8 @@ Override them when you need to match your app's own palette:
 
 `null` (the default) means "use the built-in themed colors."
 
+The disabled colors are applied directly to the button's internal labels and are protected from being overridden by your app's implicit `Label` style: `NiceButton` installs its own (empty) `CommonStates` visual-state group on those labels, so a stock template's `Disabled` visual state can't recolor them behind your back. You don't need to do anything for this to work.
+
 ### Enums and constants
 
 - **`ButtonShape`** — `Rectangle`, `Rounded`, `Circle`
