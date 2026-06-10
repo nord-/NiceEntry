@@ -2,16 +2,16 @@ namespace NiceEntry;
 
 public partial class LabeledDatePicker
 {
-	public LabeledDatePicker()
-	{
-		InitializeComponent();
+    public LabeledDatePicker()
+    {
+        InitializeComponent();
         
         Element.SetVisualElementBinding();
         Element.SetBinding(DatePicker.DateProperty, nameof(Date), BindingMode.TwoWay);
         Element.BindingContext = this;
 
         UpdateFontSizeView();
-	}
+    }
     
     public static readonly BindableProperty DateProperty = BindableProperty.Create(nameof(Date), typeof(DateTime), typeof(LabeledDatePicker), propertyChanged: DateChanged, defaultBindingMode: BindingMode.TwoWay, defaultValueCreator: static _ => DateTime.Today);
     public static readonly BindableProperty MinimumDateProperty = BindableProperty.Create(nameof(MinimumDate), typeof(DateTime), typeof(LabeledDatePicker), DateTime.MinValue, propertyChanged: MinimumDateChanged);

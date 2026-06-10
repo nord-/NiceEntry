@@ -2,16 +2,16 @@ namespace NiceEntry;
 
 public partial class LabeledTimePicker
 {
-	public LabeledTimePicker()
-	{
-		InitializeComponent();
+    public LabeledTimePicker()
+    {
+        InitializeComponent();
         
         Element.SetVisualElementBinding();
         Element.SetBinding(TimePicker.TimeProperty, nameof(Time), BindingMode.TwoWay);
         Element.BindingContext = this;
 
         UpdateFontSizeView();
-	}
+    }
     
     public static readonly BindableProperty TimeProperty = BindableProperty.Create(nameof(Time), typeof(TimeSpan), typeof(LabeledTimePicker), propertyChanged: TimeChanged, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledTimePicker), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);

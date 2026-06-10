@@ -73,7 +73,7 @@ public partial class LabeledEntry
         set => SetValue(IsPasswordProperty, value);
     }
 
-	public new bool IsReadOnly
+    public new bool IsReadOnly
     {
         get => (bool)GetValue(IsReadOnlyProperty);
         set => SetValue(IsReadOnlyProperty, value);
