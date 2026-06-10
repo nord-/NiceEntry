@@ -4,7 +4,7 @@
 
 **Goal:** Expose `LineBreakMode?` on `NiceButton` with orientation-aware auto-resolution (Vertical→WordWrap, Horizontal→TailTruncation) and fix the underlying layout so word wrap actually works.
 
-**Architecture:** The nullable property defaults to auto-resolution via `EffectiveLineBreakMode`. `RebuildContent()` sets column `GridLength` (Star or Auto) and `_contentHost.HorizontalOptions` (Fill or Center) **statically** based on `EffectiveLineBreakMode` — no layout mutations during measure. `NiceButtonLayoutManager.Measure` does a two-pass measure only for the WordWrap path: pass 1 with infinite width (Star columns act as Auto → natural/hugging size), pass 2 with real constraint only when content overflows. The non-wrap path is unchanged.
+**Architecture:** The nullable property defaults to auto-resolution via `EffectiveLineBreakMode`. `RebuildContent()` sets column `GridLength` (Star or Auto) and `_contentHost.HorizontalOptions` (Fill or Center) **statically** based on `EffectiveLineBreakMode`, and records the result in `internal bool WrapsText`. `NiceButtonLayoutManager.Measure` gates the two-pass logic on `WrapsText` — so icon-only buttons (where text never overflows) skip the extra pass. The non-wrap path is unchanged.
 
 **Tech Stack:** .NET MAUI 10, C# 13, `NiceEntry/NiceButton.cs`, `NiceEntry/NiceButtonLayoutManager.cs`, `README.md`
 
@@ -103,6 +103,12 @@ _textLabel = new Label
 };
 ```
 
+- [ ] **Add `WrapsText` field** near the other private fields (after `_tapInFlight`):
+
+```csharp
+internal bool WrapsText;
+```
+
 - [ ] **Replace the entire `RebuildContent()` method** with the version below:
 
 ```csharp
@@ -121,15 +127,16 @@ private void RebuildContent()
     _iconLabel.IsVisible = hasIcon;
     _textLabel.IsVisible = hasText;
 
+    WrapsText = hasText && EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap;
+
     if (!hasIcon && !hasText)
     {
         UpdateLineBreakModeView();
         return;
     }
 
-    var wrap = hasText && EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap;
-    var textLen = wrap ? GridLength.Star : GridLength.Auto;
-    _contentHost.HorizontalOptions = wrap ? LayoutOptions.Fill : LayoutOptions.Center;
+    var textColumnWidth = WrapsText ? GridLength.Star : GridLength.Auto;
+    _contentHost.HorizontalOptions = WrapsText ? LayoutOptions.Fill : LayoutOptions.Center;
 
     if (hasIcon && hasText)
     {
@@ -142,16 +149,16 @@ private void RebuildContent()
             _contentHost.ColumnSpacing = Spacing;
             _contentHost.RowSpacing = 0;
             _contentHost.ColumnDefinitions.Add(
-                new ColumnDefinition(iconFirst ? GridLength.Auto : textLen));
+                new ColumnDefinition(iconFirst ? GridLength.Auto : textColumnWidth));
             _contentHost.ColumnDefinitions.Add(
-                new ColumnDefinition(iconFirst ? textLen : GridLength.Auto));
+                new ColumnDefinition(iconFirst ? textColumnWidth : GridLength.Auto));
             _contentHost.Add(first, 0, 0);
             _contentHost.Add(second, 1, 0);
         }
         else
         {
             // Vertical: single column (Star for wrap, Auto otherwise), two rows
-            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textLen));
+            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textColumnWidth));
             _contentHost.RowSpacing = Spacing;
             _contentHost.ColumnSpacing = 0;
             _contentHost.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
@@ -163,7 +170,7 @@ private void RebuildContent()
     else
     {
         if (hasText)
-            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textLen));
+            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textColumnWidth));
 
         var only = hasIcon ? (View)_iconLabel : _textLabel;
         _contentHost.Add(only, 0, 0);
@@ -198,9 +205,11 @@ git commit -m "feat: drive NiceButton column layout from EffectiveLineBreakMode 
 
 The layout manager adds a two-pass measure only for the WordWrap path. No layout properties are mutated during measure — the column state was set statically by `RebuildContent()`.
 
-**Why two passes (WordWrap only):**
+**Why two passes (`WrapsText` only):**
 - Pass 1 with `double.PositiveInfinity`: Star columns behave like Auto under infinite constraint → returns the natural hugging size. If this fits within `widthConstraint`, the button hugs its content identically to today.
 - Pass 2 with `widthConstraint` (only when pass 1 overflows): Star column apportions the real available width → label wraps and reports a taller desired size.
+
+`WrapsText` is false for icon-only buttons, so they never enter the two-pass path regardless of orientation.
 
 **Non-wrap path:** unchanged — measures with `widthConstraint` as before.
 
@@ -215,7 +224,7 @@ public Size Measure(double widthConstraint, double heightConstraint)
         if (child.Visibility == Visibility.Collapsed) continue;
 
         Size size;
-        if (_button.EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap
+        if (_button.WrapsText
             && !double.IsPositiveInfinity(widthConstraint))
         {
             // Pass 1: natural size — Star columns act like Auto at infinite width
@@ -403,10 +412,11 @@ gh pr create `
 | `LayoutAffectingChanged` as handler | Task 2 |
 | `UpdateLineBreakModeView()` called from `RebuildContent()` | Task 3 |
 | Hard-coded `TailTruncation` removed (same commit as wiring) | Task 3 |
-| Column `GridLength` and `HorizontalOptions` set from effective mode | Task 3 |
+| `WrapsText` field set in `RebuildContent()` | Task 3 |
+| Column `GridLength` (`textColumnWidth`) and `HorizontalOptions` set from `WrapsText` | Task 3 |
 | Text-only and vertical icon+text cases have explicit column def | Task 3 |
-| Icon-only: HorizontalOptions stays Center (guard: `wrap = hasText && ...`) | Task 3 |
-| `NiceButtonLayoutManager` two-pass: natural first, bounded on overflow | Task 4 |
+| Icon-only: `WrapsText = false` → HorizontalOptions stays Center | Task 3 |
+| `NiceButtonLayoutManager` two-pass gated on `WrapsText` (not re-computed) | Task 4 |
 | Non-wrap path unchanged | Task 4 |
 | README row | Task 5 |
 | Smoke test all 6 acceptance criteria incl. hug for short text | Task 6 |
