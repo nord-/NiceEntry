@@ -2,6 +2,7 @@ using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Layouts;
 using System.Windows.Input;
+using Microsoft.Maui;
 
 namespace NiceEntry;
 
@@ -98,7 +99,7 @@ public class NiceButton : Layout
             VerticalTextAlignment = TextAlignment.Center,
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center,
-            LineBreakMode = LineBreakMode.TailTruncation,
+            LineBreakMode = Microsoft.Maui.LineBreakMode.TailTruncation,
             FontSize = FontSize
         };
 
@@ -197,6 +198,10 @@ public class NiceButton : Layout
         nameof(FontAttributes), typeof(FontAttributes), typeof(NiceButton),
         FontAttributes.None, propertyChanged: FontAttributesChanged);
 
+    public static readonly BindableProperty LineBreakModeProperty = BindableProperty.Create(
+        nameof(LineBreakMode), typeof(Microsoft.Maui.LineBreakMode?), typeof(NiceButton), null,
+        propertyChanged: LayoutAffectingChanged);
+
     public static readonly BindableProperty IconSizeProperty = BindableProperty.Create(
         nameof(IconSize), typeof(double), typeof(NiceButton), 20.0, propertyChanged: IconSizeChanged);
 
@@ -249,6 +254,11 @@ public class NiceButton : Layout
     public double FontSize { get => (double)GetValue(FontSizeProperty); set => SetValue(FontSizeProperty, value); }
     public string FontFamily { get => (string)GetValue(FontFamilyProperty); set => SetValue(FontFamilyProperty, value); }
     public FontAttributes FontAttributes { get => (FontAttributes)GetValue(FontAttributesProperty); set => SetValue(FontAttributesProperty, value); }
+    public Microsoft.Maui.LineBreakMode? LineBreakMode
+    {
+        get => (Microsoft.Maui.LineBreakMode?)GetValue(LineBreakModeProperty);
+        set => SetValue(LineBreakModeProperty, value);
+    }
     public double IconSize { get => (double)GetValue(IconSizeProperty); set => SetValue(IconSizeProperty, value); }
     public ButtonShape ButtonShape { get => (ButtonShape)GetValue(ButtonShapeProperty); set => SetValue(ButtonShapeProperty, value); }
     public double CornerRadius { get => (double)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
@@ -360,6 +370,15 @@ public class NiceButton : Layout
     private void UpdateFontSizeView() => _textLabel.FontSize = FontSize;
     private void UpdateFontFamilyView() => _textLabel.FontFamily = FontFamily;
     private void UpdateFontAttributesView() => _textLabel.FontAttributes = FontAttributes;
+
+    internal Microsoft.Maui.LineBreakMode EffectiveLineBreakMode =>
+        LineBreakMode ?? (Orientation == ButtonContentOrientation.Vertical
+            ? Microsoft.Maui.LineBreakMode.WordWrap
+            : Microsoft.Maui.LineBreakMode.TailTruncation);
+
+    private void UpdateLineBreakModeView()
+        => _textLabel.LineBreakMode = EffectiveLineBreakMode;
+
     private void UpdateIconSizeView() => _iconLabel.FontSize = IconSize;
 
     private void UpdateShapeView()
