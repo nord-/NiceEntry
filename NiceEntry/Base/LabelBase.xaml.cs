@@ -4,7 +4,11 @@ namespace NiceEntry;
 
 public partial class LabelBase
 {
-    public static readonly double DefaultFontSize = DeviceInfo.Platform == DevicePlatform.iOS ? 12.0 : 16.0;
+#if IOS
+    public static readonly double DefaultFontSize = 12.0;
+#else
+    public static readonly double DefaultFontSize = 16.0;
+#endif
 
     // Mirrors the left value of LabelContainer.Margin in LabelBase.xaml — keep in lockstep.
     private const double LabelContainerLeftMargin = 14;
@@ -69,9 +73,11 @@ public partial class LabelBase
     // New properties
     public static readonly BindableProperty ContentPaddingProperty = BindableProperty.Create(
         nameof(ContentPadding), typeof(Thickness), typeof(LabelBase),
-        defaultValue: DeviceInfo.Platform == DevicePlatform.iOS
-            ? new Thickness(12, 12)
-            : new Thickness(12, 10),
+#if IOS
+        defaultValue: new Thickness(12, 12),
+#else
+        defaultValue: new Thickness(12, 10),
+#endif
         propertyChanged: ContentPaddingChanged);
 
     public static readonly BindableProperty UnitProperty = BindableProperty.Create(
