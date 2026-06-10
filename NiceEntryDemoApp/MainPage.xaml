@@ -116,6 +116,7 @@
 
         <ne:LabeledAutoCompleteEntry Label="ICAO-code"
                                      Placeholder="e.g. ESGG"
+                                     Example="4-letter ICAO identifier"
                                      CommitOnUpperCase="True"
                                      MaxSuggestions="6"
                                      Text="{Binding IcaoText}"
