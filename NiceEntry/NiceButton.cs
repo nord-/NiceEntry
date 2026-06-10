@@ -69,6 +69,7 @@ public class NiceButton : Layout
     private Brush? _userBackgroundBrush;
     private bool _commandEnabled = true;
     private bool _tapInFlight;
+    internal bool WrapsText;
 
     private readonly Border _border;
     private readonly Grid _contentHost;
@@ -99,7 +100,6 @@ public class NiceButton : Layout
             VerticalTextAlignment = TextAlignment.Center,
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center,
-            LineBreakMode = Microsoft.Maui.LineBreakMode.TailTruncation,
             FontSize = FontSize
         };
 
@@ -541,7 +541,16 @@ public class NiceButton : Layout
         _iconLabel.IsVisible = hasIcon;
         _textLabel.IsVisible = hasText;
 
-        if (!hasIcon && !hasText) return;
+        WrapsText = hasText && EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap;
+
+        if (!hasIcon && !hasText)
+        {
+            UpdateLineBreakModeView();
+            return;
+        }
+
+        var textColumnWidth = WrapsText ? GridLength.Star : GridLength.Auto;
+        _contentHost.HorizontalOptions = WrapsText ? LayoutOptions.Fill : LayoutOptions.Center;
 
         if (hasIcon && hasText)
         {
@@ -553,13 +562,17 @@ public class NiceButton : Layout
             {
                 _contentHost.ColumnSpacing = Spacing;
                 _contentHost.RowSpacing = 0;
-                _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
-                _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+                _contentHost.ColumnDefinitions.Add(
+                    new ColumnDefinition(iconFirst ? GridLength.Auto : textColumnWidth));
+                _contentHost.ColumnDefinitions.Add(
+                    new ColumnDefinition(iconFirst ? textColumnWidth : GridLength.Auto));
                 _contentHost.Add(first, 0, 0);
                 _contentHost.Add(second, 1, 0);
             }
             else
             {
+                // Vertical: single column (Star for wrap, Auto otherwise), two rows
+                _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textColumnWidth));
                 _contentHost.RowSpacing = Spacing;
                 _contentHost.ColumnSpacing = 0;
                 _contentHost.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
@@ -570,10 +583,14 @@ public class NiceButton : Layout
         }
         else
         {
+            if (hasText)
+                _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textColumnWidth));
+
             var only = hasIcon ? (View)_iconLabel : _textLabel;
             _contentHost.Add(only, 0, 0);
         }
 
+        UpdateLineBreakModeView();
         InvalidateMeasure();
     }
 }
