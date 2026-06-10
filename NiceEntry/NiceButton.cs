@@ -18,8 +18,9 @@ public class NiceButton : Layout
     private static readonly Color DefaultForegroundDark = Colors.White;
     private static readonly Color DisabledBackgroundLight = Color.FromArgb("#E0E0E0");
     private static readonly Color DisabledBackgroundDark = Color.FromArgb("#3A3A3A");
-    private static readonly Color DisabledForegroundLight = Color.FromArgb("#9E9E9E");
-    private static readonly Color DisabledForegroundDark = Color.FromArgb("#6E6E6E");
+    // #757575 on #E0E0E0 ≈ 3.5:1; #AAAAAA on #3A3A3A ≈ 5.0:1 — legible while still looking disabled.
+    private static readonly Color DisabledForegroundLight = Color.FromArgb("#757575");
+    private static readonly Color DisabledForegroundDark = Color.FromArgb("#AAAAAA");
 
     // Background-brush neutralization (see OnPropertyChanged): _userBackgroundBrush holds the
     // consumer's intended Background brush; the Layout's own Background is forced transparent.
@@ -151,6 +152,12 @@ public class NiceButton : Layout
     public static readonly BindableProperty CustomShadowProperty = BindableProperty.Create(
         nameof(CustomShadow), typeof(Shadow), typeof(NiceButton), null, propertyChanged: ShadowChanged);
 
+    public static readonly BindableProperty DisabledBackgroundColorProperty = BindableProperty.Create(
+        nameof(DisabledBackgroundColor), typeof(Color), typeof(NiceButton), null, propertyChanged: ColorChanged);
+
+    public static readonly BindableProperty DisabledTextColorProperty = BindableProperty.Create(
+        nameof(DisabledTextColor), typeof(Color), typeof(NiceButton), null, propertyChanged: ColorChanged);
+
     public static readonly BindableProperty CommandProperty = BindableProperty.Create(
         nameof(Command), typeof(ICommand), typeof(NiceButton), null, propertyChanged: CommandChanged);
 
@@ -181,6 +188,9 @@ public class NiceButton : Layout
     /// border (set via this property) renders a shadow.
     /// </summary>
     public Shadow CustomShadow { get => (Shadow)GetValue(CustomShadowProperty); set => SetValue(CustomShadowProperty, value); }
+
+    public Color DisabledBackgroundColor { get => (Color)GetValue(DisabledBackgroundColorProperty); set => SetValue(DisabledBackgroundColorProperty, value); }
+    public Color DisabledTextColor { get => (Color)GetValue(DisabledTextColorProperty); set => SetValue(DisabledTextColorProperty, value); }
 
     public ICommand Command { get => (ICommand)GetValue(CommandProperty); set => SetValue(CommandProperty, value); }
     public object CommandParameter { get => GetValue(CommandParameterProperty); set => SetValue(CommandParameterProperty, value); }
@@ -284,8 +294,15 @@ public class NiceButton : Layout
         if (!IsEnabled || !_commandEnabled)
         {
             _border.ClearValue(BackgroundProperty);
-            _border.SetAppThemeColor(BackgroundColorProperty, DisabledBackgroundLight, DisabledBackgroundDark);
-            SetForeground(DisabledForegroundLight, DisabledForegroundDark, themed: true);
+            if (DisabledBackgroundColor is not null)
+                _border.BackgroundColor = DisabledBackgroundColor;
+            else
+                _border.SetAppThemeColor(BackgroundColorProperty, DisabledBackgroundLight, DisabledBackgroundDark);
+
+            if (DisabledTextColor is not null)
+                SetForeground(DisabledTextColor, DisabledTextColor, themed: false);
+            else
+                SetForeground(DisabledForegroundLight, DisabledForegroundDark, themed: true);
             return;
         }
 

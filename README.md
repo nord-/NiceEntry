@@ -206,6 +206,8 @@ Without this call, `Icon` glyphs render as empty boxes.
 | Color | `BackgroundColor` | `Color` | theme |
 | Color | `Background` | `Brush` | – |
 | Color | `TextColor` | `Color` | theme (icon + text) |
+| Color | `DisabledBackgroundColor` | `Color` | `null` (built-in theme) |
+| Color | `DisabledTextColor` | `Color` | `null` (built-in theme) |
 | Color | `BorderColor` | `Color` | transparent |
 | Color | `BorderWidth` | `double` | `0` |
 | Text | `FontSize` | `double` | `NiceButton.DefaultFontSize` (14.0) |
@@ -217,6 +219,21 @@ Without this call, `Icon` glyphs render as empty boxes.
 | Interaction | `Command` | `ICommand` | – |
 | Interaction | `CommandParameter` | `object` | – |
 | Interaction | `IsEnabled` | `bool` | `true` (inherited) |
+
+### Disabled state
+
+When `IsEnabled="False"` (or `Command.CanExecute` returns `false`) the button switches to muted colors automatically. The built-in theme values meet a contrast ratio of ~3.5:1 (light) and ~5:1 (dark) so disabled text remains legible.
+
+Override them when you need to match your app's own palette:
+
+```xml
+<nice:NiceButton IsEnabled="False"
+                 DisabledBackgroundColor="#EEEEEE"
+                 DisabledTextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"
+                 ... />
+```
+
+`null` (the default) means "use the built-in themed colors."
 
 ### Enums and constants
 
