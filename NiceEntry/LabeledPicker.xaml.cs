@@ -4,9 +4,9 @@ namespace NiceEntry;
 
 public partial class LabeledPicker
 {
-	public LabeledPicker()
-	{
-		InitializeComponent();
+    public LabeledPicker()
+    {
+        InitializeComponent();
         
         Element.SetVisualElementBinding();
         Element.SetBinding(Picker.ItemsSourceProperty, nameof(ItemsSource), BindingMode.TwoWay);
