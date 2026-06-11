@@ -213,6 +213,7 @@ Without this call, `Icon` glyphs render as empty boxes.
 | Text | `FontSize` | `double` | `NiceButton.DefaultFontSize` (14.0) |
 | Text | `FontFamily` | `string` | – |
 | Text | `FontAttributes` | `FontAttributes` | `None` |
+| Text | `LineBreakMode` | `LineBreakMode?` | `null` (auto: `WordWrap` for Vertical, `TailTruncation` for Horizontal) |
 | Icon | `IconSize` | `double` | `20` |
 | Shadow | `HasShadow` | `bool` | `false` |
 | Shadow | `CustomShadow` | `Shadow` | – |

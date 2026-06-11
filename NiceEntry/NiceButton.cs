@@ -68,6 +68,9 @@ public class NiceButton : Layout
     private Brush? _userBackgroundBrush;
     private bool _commandEnabled = true;
     private bool _tapInFlight;
+    // True when the button shows text. The layout manager then caps the text label's width so
+    // it wraps or ellipsizes when the button is width-constrained. Icon-only buttons skip that.
+    internal bool HasTextContent => !string.IsNullOrEmpty(Text);
 
     private readonly Border _border;
     private readonly Grid _contentHost;
@@ -98,7 +101,6 @@ public class NiceButton : Layout
             VerticalTextAlignment = TextAlignment.Center,
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center,
-            LineBreakMode = LineBreakMode.TailTruncation,
             FontSize = FontSize
         };
 
@@ -159,6 +161,9 @@ public class NiceButton : Layout
     /// <summary>True when the button must be measured square (Circle shape).</summary>
     internal bool ForceSquare => ButtonShape == ButtonShape.Circle;
 
+    /// <summary>The inner text label; the layout manager caps its width (see <see cref="NiceButtonLayoutManager"/>).</summary>
+    internal Label TextLabel => _textLabel;
+
     protected override ILayoutManager CreateLayoutManager() => new NiceButtonLayoutManager(this);
 
     // --- Content & text-style bindable properties ---
@@ -196,6 +201,10 @@ public class NiceButton : Layout
     public static readonly BindableProperty FontAttributesProperty = BindableProperty.Create(
         nameof(FontAttributes), typeof(FontAttributes), typeof(NiceButton),
         FontAttributes.None, propertyChanged: FontAttributesChanged);
+
+    public static readonly BindableProperty LineBreakModeProperty = BindableProperty.Create(
+        nameof(LineBreakMode), typeof(Microsoft.Maui.LineBreakMode?), typeof(NiceButton), null,
+        propertyChanged: LineBreakModeChanged);
 
     public static readonly BindableProperty IconSizeProperty = BindableProperty.Create(
         nameof(IconSize), typeof(double), typeof(NiceButton), 20.0, propertyChanged: IconSizeChanged);
@@ -249,6 +258,11 @@ public class NiceButton : Layout
     public double FontSize { get => (double)GetValue(FontSizeProperty); set => SetValue(FontSizeProperty, value); }
     public string FontFamily { get => (string)GetValue(FontFamilyProperty); set => SetValue(FontFamilyProperty, value); }
     public FontAttributes FontAttributes { get => (FontAttributes)GetValue(FontAttributesProperty); set => SetValue(FontAttributesProperty, value); }
+    public Microsoft.Maui.LineBreakMode? LineBreakMode
+    {
+        get => (Microsoft.Maui.LineBreakMode?)GetValue(LineBreakModeProperty);
+        set => SetValue(LineBreakModeProperty, value);
+    }
     public double IconSize { get => (double)GetValue(IconSizeProperty); set => SetValue(IconSizeProperty, value); }
     public ButtonShape ButtonShape { get => (ButtonShape)GetValue(ButtonShapeProperty); set => SetValue(ButtonShapeProperty, value); }
     public double CornerRadius { get => (double)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
@@ -341,6 +355,14 @@ public class NiceButton : Layout
             btn.RebuildContent();
     }
     private static void LayoutAffectingChanged(BindableObject b, object o, object n) => ((NiceButton)b).RebuildContent();
+    // The grid structure doesn't depend on the line-break mode, so no RebuildContent here.
+    // Orientation flips (which affect the auto mode) go through LayoutAffectingChanged.
+    private static void LineBreakModeChanged(BindableObject b, object o, object n)
+    {
+        var btn = (NiceButton)b;
+        btn.UpdateLineBreakModeView();
+        btn.InvalidateMeasure();
+    }
     private static void ContentPaddingChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateContentPaddingView();
     private static void FontSizeChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontSizeView();
     private static void FontFamilyChanged(BindableObject b, object o, object n) => ((NiceButton)b).UpdateFontFamilyView();
@@ -360,6 +382,15 @@ public class NiceButton : Layout
     private void UpdateFontSizeView() => _textLabel.FontSize = FontSize;
     private void UpdateFontFamilyView() => _textLabel.FontFamily = FontFamily;
     private void UpdateFontAttributesView() => _textLabel.FontAttributes = FontAttributes;
+
+    internal Microsoft.Maui.LineBreakMode EffectiveLineBreakMode =>
+        LineBreakMode ?? (Orientation == ButtonContentOrientation.Vertical
+            ? Microsoft.Maui.LineBreakMode.WordWrap
+            : Microsoft.Maui.LineBreakMode.TailTruncation);
+
+    private void UpdateLineBreakModeView()
+        => _textLabel.LineBreakMode = EffectiveLineBreakMode;
+
     private void UpdateIconSizeView() => _iconLabel.FontSize = IconSize;
 
     private void UpdateShapeView()
@@ -522,8 +553,16 @@ public class NiceButton : Layout
         _iconLabel.IsVisible = hasIcon;
         _textLabel.IsVisible = hasText;
 
-        if (!hasIcon && !hasText) return;
+        if (!hasIcon && !hasText)
+        {
+            UpdateLineBreakModeView();
+            InvalidateMeasure();
+            return;
+        }
 
+        // Auto columns + centered grid keep icon and text hugging as a unit even when a parent
+        // stretches the button. Wrap/ellipsis still engages because NiceButtonLayoutManager caps
+        // the text label's MaximumWidthRequest at the width left over for text.
         if (hasIcon && hasText)
         {
             var iconFirst = IconPlacement == IconPlacement.Start;
@@ -541,6 +580,8 @@ public class NiceButton : Layout
             }
             else
             {
+                // Vertical: single column shared by icon and text, two rows
+                _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
                 _contentHost.RowSpacing = Spacing;
                 _contentHost.ColumnSpacing = 0;
                 _contentHost.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
@@ -551,10 +592,15 @@ public class NiceButton : Layout
         }
         else
         {
+            // Explicit Auto column: a Grid without definitions gets an implicit Star column,
+            // which would expand to the full bounded width instead of hugging the child.
+            _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+
             var only = hasIcon ? (View)_iconLabel : _textLabel;
             _contentHost.Add(only, 0, 0);
         }
 
+        UpdateLineBreakModeView();
         InvalidateMeasure();
     }
 }

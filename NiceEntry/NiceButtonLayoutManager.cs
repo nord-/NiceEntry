@@ -22,7 +22,32 @@ internal sealed class NiceButtonLayoutManager : ILayoutManager
         foreach (var child in _button)
         {
             if (child.Visibility == Visibility.Collapsed) continue;
+
             var size = child.Measure(widthConstraint, heightConstraint);
+
+            if (_button.HasTextContent)
+            {
+                // The icon/text grid uses Auto columns and stays centered, so icon and text hug
+                // as a unit even when a parent stretches the button — but an Auto column measures
+                // the label at infinite width, so wrap/ellipsis would never engage on its own.
+                // Cap the label at the width left over after the non-text parts (border padding,
+                // icon, spacing); the label then wraps (WordWrap) or ellipsizes (TailTruncation)
+                // per EffectiveLineBreakMode instead of overflowing the border. The overhead is
+                // additive, so it is valid even when this pass measured with a stale cap.
+                var textLabel = _button.TextLabel;
+                var cap = double.IsPositiveInfinity(widthConstraint)
+                    ? double.PositiveInfinity
+                    : Math.Max(0, widthConstraint - (size.Width - textLabel.DesiredSize.Width));
+
+                // Only touch the property on real changes: assignment invalidates measure, and a
+                // steady-state no-op write would otherwise re-trigger layout forever.
+                if (Math.Abs(textLabel.MaximumWidthRequest - cap) > 0.5)
+                {
+                    textLabel.MaximumWidthRequest = cap;
+                    size = child.Measure(widthConstraint, heightConstraint);
+                }
+            }
+
             desired = new Size(Math.Max(desired.Width, size.Width), Math.Max(desired.Height, size.Height));
         }
 
