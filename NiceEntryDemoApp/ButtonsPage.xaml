@@ -54,7 +54,7 @@
 
         <Label Text="LineBreakMode smoke tests" FontSize="20" FontAttributes="Bold" />
 
-        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="16">
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="16">
 
             <!-- S1: Horizontal default — short text → hugs width -->
             <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
@@ -106,6 +106,46 @@
                 <ne:NiceButton Text="Short"
                                Orientation="Vertical"
                                HorizontalOptions="Center"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S7: Horizontal + icon Start + long text at 150 px → truncate -->
+            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
+                <Label Text="S7: Icon Start, truncate (horiz, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="Long label that truncates"
+                               Icon="Cart" IconPlacement="Start"
+                               Orientation="Horizontal"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S8: Horizontal + icon End + long text at 150 px → truncate -->
+            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
+                <Label Text="S8: Icon End, truncate (horiz, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="Long label that truncates"
+                               Icon="ArrowRight" IconPlacement="End"
+                               Orientation="Horizontal"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S9: Vertical + icon Start (above) + long text at 150 px → wrap -->
+            <VerticalStackLayout Grid.Row="4" Grid.Column="0" Spacing="4">
+                <Label Text="S9: Icon above, wrap (vert, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="Long label that wraps here"
+                               Icon="Email" IconPlacement="Start"
+                               Orientation="Vertical"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S10: Vertical + icon End (below) + long text at 150 px → wrap -->
+            <VerticalStackLayout Grid.Row="4" Grid.Column="1" Spacing="4">
+                <Label Text="S10: Icon below, wrap (vert, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="Long label that wraps here"
+                               Icon="Undo" IconPlacement="End"
+                               Orientation="Vertical"
+                               WidthRequest="150"
                                BackgroundColor="#3B49DF" TextColor="White" />
             </VerticalStackLayout>
 
