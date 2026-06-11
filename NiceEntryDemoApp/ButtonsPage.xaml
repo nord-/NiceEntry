@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ne="clr-namespace:NiceEntry;assembly=NiceEntry"
+             xmlns:demo="clr-namespace:NiceEntryDemoApp"
+             x:Class="NiceEntryDemoApp.ButtonsPage"
+             x:DataType="demo:ButtonsViewModel"
+             Title="NiceButton">
+
+    <ScrollView>
+    <VerticalStackLayout Margin="16,32" Spacing="25" Padding="0,0,0,400">
+
+        <Label Text="Layout variants" FontSize="20" FontAttributes="Bold" />
+
+        <!-- Six layout variants -->
+        <ne:NiceButton Text="Label only"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Label only" />
+
+        <ne:NiceButton Icon="ThumbUp" ButtonShape="Circle"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon only" />
+
+        <ne:NiceButton Text="Buy now" Icon="Cart" Orientation="Horizontal" IconPlacement="Start"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon left" />
+
+        <ne:NiceButton Text="Choose plan" Icon="ArrowRight" Orientation="Horizontal" IconPlacement="End"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon right" />
+
+        <ne:NiceButton Text="Read" Icon="Email" Orientation="Vertical" IconPlacement="Start"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon top" />
+
+        <ne:NiceButton Text="Undo" Icon="Undo" Orientation="Vertical" IconPlacement="End"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Icon bottom" />
+
+        <!-- Shapes -->
+        <ne:NiceButton Text="Rectangle" ButtonShape="Rectangle" BackgroundColor="#3B49DF" TextColor="White" />
+        <ne:NiceButton Text="Rounded r=20" ButtonShape="Rounded" CornerRadius="20" BackgroundColor="#3B49DF" TextColor="White" />
+
+        <!-- Shadow + disabled -->
+        <ne:NiceButton Text="With shadow" Icon="Star" HasShadow="True" BackgroundColor="#3B49DF" TextColor="White" />
+        <ne:NiceButton Text="Default theme colors" Icon="Palette" />
+        <ne:NiceButton Text="Bound IsEnabled" Icon="Lock" IsEnabled="{Binding IsButtonEnabled}"
+                       BackgroundColor="#3B49DF" TextColor="White"
+                       Command="{Binding NiceButtonTappedCommand}" CommandParameter="Bound IsEnabled" />
+        <HorizontalStackLayout Spacing="8">
+            <Label Text="Enable the button above" VerticalOptions="Center" />
+            <Switch IsToggled="{Binding IsButtonEnabled}" />
+        </HorizontalStackLayout>
+
+        <Label Text="LineBreakMode smoke tests" FontSize="20" FontAttributes="Bold" />
+
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="16">
+
+            <!-- S1: Horizontal default — short text → hugs width -->
+            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                <Label Text="S1: Hug (horizontal)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="Buy now"
+                               HorizontalOptions="Center"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S2: Horizontal default — long text at 150 px → tail-truncate -->
+            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                <Label Text="S2: Truncate (horizontal, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="This is a very long button label that should truncate"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S3: Vertical default — long text at 150 px → word-wrap -->
+            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                <Label Text="S3: Wrap (vertical, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="This is a very long button label that should wrap"
+                               Orientation="Vertical"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S4: Vertical + explicit TailTruncation → truncate despite vertical -->
+            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                <Label Text="S4: Truncate (vertical explicit, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="This should truncate even in vertical"
+                               Orientation="Vertical"
+                               LineBreakMode="TailTruncation"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S5: Horizontal + explicit WordWrap → wrap despite horizontal -->
+            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
+                <Label Text="S5: Wrap (horizontal explicit, 150px)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="This is a long text that should wrap on a horizontal button"
+                               LineBreakMode="WordWrap"
+                               WidthRequest="150"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+            <!-- S6: Vertical short text → hugs, does NOT stretch full width -->
+            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                <Label Text="S6: Hug (vertical short text)" FontSize="12" TextColor="Gray" />
+                <ne:NiceButton Text="Short"
+                               Orientation="Vertical"
+                               HorizontalOptions="Center"
+                               BackgroundColor="#3B49DF" TextColor="White" />
+            </VerticalStackLayout>
+
+        </Grid>
+
+    </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
