@@ -69,7 +69,10 @@ public class NiceButton : Layout
     private Brush? _userBackgroundBrush;
     private bool _commandEnabled = true;
     private bool _tapInFlight;
-    internal bool WrapsText;
+    // True when the button shows text. The layout manager then measures natural-first so the
+    // Star text column hugs content that fits and limits the label (wrap or ellipsis) when it
+    // doesn't. Icon-only buttons skip the extra pass.
+    internal bool HasTextContent;
 
     private readonly Border _border;
     private readonly Grid _contentHost;
@@ -98,7 +101,9 @@ public class NiceButton : Layout
         {
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
-            HorizontalOptions = LayoutOptions.Center,
+            // Fill: the Star text column decides the label's width (wrap/ellipsis); visual
+            // centering comes from HorizontalTextAlignment, not from centering the label.
+            HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Center,
             FontSize = FontSize
         };
@@ -541,7 +546,7 @@ public class NiceButton : Layout
         _iconLabel.IsVisible = hasIcon;
         _textLabel.IsVisible = hasText;
 
-        WrapsText = hasText && EffectiveLineBreakMode == Microsoft.Maui.LineBreakMode.WordWrap;
+        HasTextContent = hasText;
 
         if (!hasIcon && !hasText)
         {
@@ -549,8 +554,13 @@ public class NiceButton : Layout
             return;
         }
 
-        var textColumnWidth = WrapsText ? GridLength.Star : GridLength.Auto;
-        _contentHost.HorizontalOptions = WrapsText ? LayoutOptions.Fill : LayoutOptions.Center;
+        // Star + Fill so a width-constrained button limits the label, which then wraps or
+        // ellipsizes per EffectiveLineBreakMode. An Auto column would measure the label at
+        // infinite width and truncation would never engage (the oversized grid gets centered
+        // and clipped at both ends, pushing any icon out of view). Hugging still works: under
+        // the infinite pass-1 measure in NiceButtonLayoutManager, Star reports natural size.
+        var textColumnWidth = GridLength.Star;
+        _contentHost.HorizontalOptions = hasText ? LayoutOptions.Fill : LayoutOptions.Center;
 
         if (hasIcon && hasText)
         {
@@ -571,7 +581,7 @@ public class NiceButton : Layout
             }
             else
             {
-                // Vertical: single column (Star for wrap, Auto otherwise), two rows
+                // Vertical: single Star column shared by icon and text, two rows
                 _contentHost.ColumnDefinitions.Add(new ColumnDefinition(textColumnWidth));
                 _contentHost.RowSpacing = Spacing;
                 _contentHost.ColumnSpacing = 0;

@@ -24,19 +24,22 @@ internal sealed class NiceButtonLayoutManager : ILayoutManager
             if (child.Visibility == Visibility.Collapsed) continue;
 
             Size size;
-            if (_button.WrapsText
+            if (_button.HasTextContent
                 && !double.IsPositiveInfinity(widthConstraint))
             {
-                // Pass 1: natural size — Star columns act like Auto at infinite width
+                // Pass 1: natural size — the Star text column acts like Auto at infinite
+                // width, so a button whose text fits hugs its content.
                 var natural = child.Measure(double.PositiveInfinity, heightConstraint);
-                // Pass 2 only when content overflows the real constraint
+                // Pass 2 only when content overflows: the bounded Star column hands the label
+                // the remaining width, so it wraps (WordWrap) or ellipsizes (TailTruncation)
+                // instead of overflowing the border.
                 size = natural.Width <= widthConstraint
                     ? natural
                     : child.Measure(widthConstraint, heightConstraint);
             }
             else
             {
-                // Non-wrap: unchanged — measure with real constraint
+                // No text (or unconstrained width): single natural measure suffices.
                 size = child.Measure(widthConstraint, heightConstraint);
             }
 
