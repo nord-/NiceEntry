@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
 
     steps:
       - name: Checkout
@@ -73,3 +75,26 @@ jobs:
             --title "v${{ steps.version.outputs.version }}" \
             --generate-notes \
             --target "${{ github.sha }}"
+
+  publish:
+    needs: release
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui-android maui-ios
+
+      - name: Pack
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: dotnet pack NiceEntry/NiceEntry.csproj -c Release "/p:Version=$VERSION"
+
+      - name: Push to NuGet
+        run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
