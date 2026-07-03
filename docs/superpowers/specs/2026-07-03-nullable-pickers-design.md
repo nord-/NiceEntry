@@ -1,6 +1,6 @@
 # Nullable LabeledDatePicker & LabeledTimePicker — design
 
-**Datum:** 2026-07-03
+**Datum:** 2026-07-03 (rev. 2 efter spec-review)
 **Status:** Godkänd design, väntar på implementationsplan
 **Versionspåverkan:** Breaking change → PR märks `major`
 
@@ -11,15 +11,29 @@ ett tomt fält, i stället för att alltid visa ett värde (idag `DateTime.Today
 `TimeSpan.Zero`). Användaren ska kunna se skillnad på "inget valt" och "ett värde valt",
 och `IsRequired`-validering ska fungera naturligt (null = inget valt).
 
-## Plattformsgotcha (styrande för designen)
+## Grundfynd: MAUI 10 har nativt nullable-stöd
 
-- **Android:** pickerdialogerna kräver OK/Cancel. MAUI:s `DateSelected`/`TimeSelected`
-  triggas bara vid OK — Cancel lämnar värdet orört. Alltså: Cancel från tomt läge
-  lämnar fältet tomt utan extra logik.
-- **iOS:** värdet ändras direkt när användaren snurrar hjulet; det finns ingen
-  OK/Cancel, bara Done/dismiss. Det går inte att skilja "valde" från "ångrade sig".
-  **Beslut:** på iOS committas det visade värdet när pickern stängs (`Unfocused`),
-  även om användaren inte snurrat. Öppnat = valt.
+Projektet refererar `Microsoft.Maui.Controls 10.0.41`. Verifierat mot MAUI-källan
+(branch `release/10.0.1xx`):
+
+- `DatePicker.Date` är `DateTime?` (`DateProperty` skapas med `typeof(DateTime?)`);
+  `TimePicker.Time` är `TimeSpan?`.
+- Null renderas nativt som tom text:
+  `platformDatePicker.Text = datePicker.Date?.ToString(datePicker.Format) ?? string.Empty`
+  (Android `DatePickerExtensions`; iOS motsvarande).
+- **Android:** dialogen öppnar på dagens datum vid null
+  (`date?.Year ?? DateTime.Today.Year` …); OK anropar `VirtualView.Date = e.Date` —
+  null → idag är en faktisk propertyändring och propageras. Cancel rör ingenting →
+  fältet förblir tomt. Detta löser även review-fyndet "OK utan att ändra värde":
+  från tomt läge är varje OK en ändring (null → värde). Det enda o-ändrings-fallet
+  är OK på ett redan valt värde — och då är utfallet korrekt oavsett (värdet består).
+- **iOS:** Done-knappen anropar `SetVirtualViewDate()` villkorslöst — det visade
+  värdet committas även om användaren inte snurrat. Detta ÄR beslutet
+  "öppnat = valt", implementerat nativt av MAUI. Dismiss utan Done lämnar värdet.
+
+Konsekvens: ingen medieringslogik, ingen blank-rendering via handler-mappers,
+inga custom handlers behövs. Dagens enkla TwoWay-`SetBinding` behålls — endast
+de yttre propertyernas typer ändras.
 
 ## API-förändringar (breaking)
 
@@ -29,71 +43,50 @@ och `IsRequired`-validering ska fungera naturligt (null = inget valt).
 | `LabeledTimePicker` | `Time` | `TimeSpan`, default `default(TimeSpan)` | `TimeSpan?`, default `null` |
 | Båda | `ShowClearButton` | — | ny `bool` BindableProperty, default `false` |
 
-`MinimumDate`/`MaximumDate` och `FontSize` är oförändrade. `defaultBindingMode`
-förblir `TwoWay` på `Date`/`Time`.
+- `defaultBindingMode` förblir `TwoWay`; `defaultValueCreator: DateTime.Today` tas bort.
+- `MinimumDate`/`MaximumDate` och `FontSize` oförändrade.
+- Inre `DatePickerBase`/`TimePickerBase` behåller sina befintliga handler-mappers
+  (transparent bakgrund, borderless, höjdmätning) — inget nytt där.
 
 ## Arkitektur
 
-### Dataflöde — mediering ersätter TwoWay-binding
+### Databindning
 
-Dagens direkta `Element.SetBinding(DatePicker.DateProperty, nameof(Date), TwoWay)`
-tas bort. Ytterkontrollen medierar i stället:
-
-**Ut → in (propertyChanged på yttre `Date`/`Time`):**
-- Icke-null → pusha värdet till `Element.Date`/`Element.Time` och markera inre
-  pickern som icke-blank.
-- Null → markera inre pickern som blank (se nedan). Inre pickerns eget värde lämnas
-  orört — det blir startposition om användaren öppnar pickern.
-
-**In → ut:**
-- **Android:** prenumerera på `Element.DateSelected`/`Element.TimeSelected` →
-  sätt yttre property. Triggas bara vid OK.
-- **iOS:** prenumerera på `Element.Unfocused` → committa `Element.Date`/`Element.Time`
-  till yttre property när pickern stängs (Done eller dismiss).
-- Plattformsval via `#if ANDROID` / `#if IOS`, samma mönster som `EntryBase` m.fl.
-
-**Loop-skydd:** jämför värdet innan set (både ut→in och in→ut); sätt bara vid
-faktisk skillnad.
-
-### Blank-rendering
-
-De nativa pickervyerna kan aldrig visa tom text via MAUI-API:t. Lösning: en intern
-flagga (`IsBlank`) på `DatePickerBase`/`TimePickerBase`. De befintliga statiska
-handler-mapparna utökas så att när `IsBlank` är sann rensas den nativa textytan:
-
-- **Android:** `handler.PlatformView.Text = ""` (underliggande `AppCompatEditText`
-  för både date- och timepicker).
-- **iOS:** `handler.PlatformView.Text = ""` (underliggande `UITextField`).
-
-**Kritisk detalj:** MAUI skriver om native-texten varje gång handlern mappar
-`Date`/`Time`, `Format`, `FontSize` m.fl. Blank-rensningen måste därför appliceras
-via `AppendToMapping` på just de nycklarna (t.ex. `nameof(DatePicker.Date)`,
-`nameof(DatePicker.Format)`), plus en re-apply när `IsBlank` själv ändras
-(via `handler.UpdateValue(...)` eller motsvarande), så att blanket överlever
-alla omritningar. Exakt nyckeluppsättning verifieras mot MAUI:s handler-källa
-under implementationen.
+Oförändrat mönster: `Element.SetBinding(DatePicker.DateProperty, nameof(Date), TwoWay)`.
+Typerna matchar nu på båda sidor (`DateTime?` ↔ `DateTime?`). Yttre default null
+propageras till inre pickern när bindningen appliceras → fältet startar tomt.
 
 ### Clear-knappen
 
 - I `LabeledDatePicker.xaml`/`LabeledTimePicker.xaml` wrappas `Element` i en `Grid`
   (kolumner `*,Auto`) tillsammans med ett ✕ — en `Label` med `TapGestureRecognizer`.
 - Synlig endast när `ShowClearButton && värde != null && IsEnabled`.
-- Tap → yttre `Date`/`Time` sätts till `null` → fältet blir blankt.
+  **OBS:** `SetVisualElementBinding` kopplar `IsEnabled` till `Element`, inte till
+  wrappern — synlighetslogiken behöver egen lyssning på yttre `IsEnabled`
+  (propertyChanged på `IsEnabledProperty` via `PropertyChanged`-event eller
+  motsvarande), så ✕ döljs när kontrollen disablas.
+- Tap → yttre `Date`/`Time` sätts till `null` → fältet blir blankt (nativt).
+- **Träffyta:** ≥ 44×44 pt — `MinimumWidthRequest`/`MinimumHeightRequest` + padding
+  på tap-ytan, inte bara glyfens naturliga storlek.
+- **Semantik:** ✕ får `SemanticProperties.Description` ("Rensa" / lokaliserbar via
+  befintlig resx-mekanism om sådan finns, annars engelska "Clear").
+  `LabelBase.UpdateSemanticDescription` sätter beskrivningen på `View` = wrappern;
+  picker-kontrollerna vidarebefordrar därför beskrivningen till inre `Element`
+  själva så skärmläsare annonserar fältets etikett på själva pickern.
 - Färg: samma `AppThemeBinding`-par som övrig text (Gray900 ljust / Gray100 mörkt),
-  gärna med sänkt opacity likt `Unit`-etiketten.
+  med sänkt opacity likt `Unit`-etiketten.
 - Grid-wrappern ligger i `LabelBase.View`-slotten; `Unit`-texten (LabelBases egen
-  Auto-kolumn) hamnar till höger om ✕:et. `SemanticProperties`-beskrivningen som
-  `LabelBase` sätter på `View` hamnar på wrappern — pickerns semantik verifieras
-  under implementationen, och ✕:et får egen semantisk beskrivning ("Rensa").
+  Auto-kolumn) hamnar till höger om ✕:et.
 
-## Kanteffekter
+## Kanteffekter och accepterade begränsningar
 
-- Öppnas pickern från tomt läge startar den på inre pickerns aktuella värde
-  (default idag / 00:00) — avsiktligt och rimligt.
-- `MinimumDate`/`MaximumDate` fungerar oförändrat; de påverkar bara inre pickern.
-- Disabled kontroll: clear-knappen döljs; blank-rendering påverkas inte.
-- Temaväxling: ✕ och blank-läge ska överleva ljust/mörkt-byte (handler-mappern
-  re-appliceras vid omritning).
+- **TimePicker från tomt läge öppnar på 00:00** (verifierat: `time?.Hours ?? 0`).
+  Att öppna på aktuell tid i stället kräver custom handler-registrering
+  (`CreateTimePickerDialog`-override + `UseNiceEntry()`-builder-extension) —
+  bedömt som inte värt maskineriet. Accepterad MAUI-nativ egenhet.
+- DatePicker från tomt läge öppnar på dagens datum (MAUI-nativt) — bra default.
+- `MinimumDate`/`MaximumDate` påverkar bara inre pickern, oförändrat.
+- Temaväxling: ✕ följer `AppThemeBinding`; blank-läget ägs av MAUI och är stabilt.
 
 ## Konsumentmigrering
 
@@ -108,10 +101,13 @@ under implementationen.
 Inget testprojekt finns; verifiering sker via demo-appen på Android och iOS:
 
 1. Tomt startläge visas blankt (ljust + mörkt tema)
-2. Välj värde → visas; Android Cancel från tomt läge → fortsatt tomt
-3. iOS: öppna + Done utan att snurra → dagens datum/visad tid committas
-4. Clear-knapp: syns bara med värde + `ShowClearButton`, tap → tomt igen
-5. TwoWay-binding: sätt/nollställ värde från VM → UI följer
+2. Android: öppna från tomt läge och tryck OK **utan att ändra värdet** →
+   dagens datum / 00:00 committas; Cancel från tomt läge → fortsatt tomt
+3. iOS: öppna + Done utan att snurra → visat värde committas
+4. Clear-knapp: syns bara med värde + `ShowClearButton` + enabled; tap → tomt igen;
+   disablad kontroll döljer ✕
+5. TwoWay-binding: sätt/nollställ värde från VM → UI följer åt båda håll
 6. `IsRequired` + validering i demo-appens ViewModel med nullable properties
+7. Skärmläsare: fältets etikett annonseras på pickern, ✕ annonseras som "Clear"
 
 Demo-appens sida uppdateras med nullable-exempel och `ShowClearButton`.
