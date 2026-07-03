@@ -13,12 +13,12 @@ public partial class LabeledTimePicker
         UpdateFontSizeView();
     }
     
-    public static readonly BindableProperty TimeProperty = BindableProperty.Create(nameof(Time), typeof(TimeSpan), typeof(LabeledTimePicker), defaultBindingMode: BindingMode.TwoWay);
+    public static readonly BindableProperty TimeProperty = BindableProperty.Create(nameof(Time), typeof(TimeSpan?), typeof(LabeledTimePicker), defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledTimePicker), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);
     
-    public TimeSpan Time
+    public TimeSpan? Time
     {
-        get => (TimeSpan)GetValue(TimeProperty);
+        get => (TimeSpan?)GetValue(TimeProperty);
         set => SetValue(TimeProperty, value);
     }
 
