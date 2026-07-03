@@ -1,4 +1,4 @@
-﻿namespace NiceEntryDemoApp;
+namespace NiceEntryDemoApp;
 
 public partial class AppShell
 {

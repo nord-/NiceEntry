@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Handlers;
+using Microsoft.Maui.Handlers;
 
 // ReSharper disable once CheckNamespace
 namespace NiceEntry.Platforms.iOS;

@@ -1,6 +1,7 @@
-﻿using UIKit;
+using UIKit;
 
 namespace NiceEntryDemoApp;
+
 public class Program
 {
     // This is the main entry point of the application.

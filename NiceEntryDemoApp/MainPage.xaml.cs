@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,7 +13,7 @@ public partial class MainPage
         var viewModel = new MainViewModel();
         BindingContext = viewModel;
 
-        
+
         InitializeComponent();
     }
 }
@@ -21,12 +21,12 @@ public partial class MainPage
 
 public partial class MainViewModel : ValidatableViewModel
 {
-    [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = $"{nameof(MyProperty)} is required"),MinLength(3, ErrorMessage = "Minimum 3 chars")] 
+    [ObservableProperty, NotifyDataErrorInfo, Required(ErrorMessage = $"{nameof(MyProperty)} is required"), MinLength(3, ErrorMessage = "Minimum 3 chars")]
     private string _myProperty = "";
 
     [ObservableProperty] private DateTime? _dateSelected;
-    [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = "You have to pick a time")] private TimeSpan? _timeSelected;
-    [ObservableProperty,Required(ErrorMessage = "You have to pick an item")] private PickerItem? _pickedItem;
+    [ObservableProperty, NotifyDataErrorInfo, Required(ErrorMessage = "You have to pick a time")] private TimeSpan? _timeSelected;
+    [ObservableProperty, Required(ErrorMessage = "You have to pick an item")] private PickerItem? _pickedItem;
 
     [ObservableProperty] private string _icaoText = "";
 

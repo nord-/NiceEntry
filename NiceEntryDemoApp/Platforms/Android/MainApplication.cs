@@ -1,7 +1,8 @@
-﻿using Android.App;
+using Android.App;
 using Android.Runtime;
 
 namespace NiceEntryDemoApp;
+
 [Application]
 public class MainApplication : MauiApplication
 {

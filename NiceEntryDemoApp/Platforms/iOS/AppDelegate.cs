@@ -1,6 +1,7 @@
-﻿using Foundation;
+using Foundation;
 
 namespace NiceEntryDemoApp;
+
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
 {

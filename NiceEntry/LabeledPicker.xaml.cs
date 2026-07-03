@@ -7,7 +7,7 @@ public partial class LabeledPicker
     public LabeledPicker()
     {
         InitializeComponent();
-        
+
         Element.SetVisualElementBinding();
         Element.SetBinding(Picker.ItemsSourceProperty, nameof(ItemsSource), BindingMode.TwoWay);
         Element.SetBinding(Picker.SelectedIndexProperty, nameof(SelectedIndex), BindingMode.TwoWay);
@@ -17,7 +17,7 @@ public partial class LabeledPicker
         UpdateFontSizeView();
         UpdateTitleColorView();
     }
-    
+
     public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(LabeledPicker), defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(LabeledPicker), -1, defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(LabeledPicker), defaultBindingMode: BindingMode.TwoWay);
