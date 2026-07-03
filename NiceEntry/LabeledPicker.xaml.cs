@@ -24,7 +24,6 @@ public partial class LabeledPicker
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledPicker), propertyChanged: PlaceholderChanged);
     public static readonly BindableProperty TitleColorProperty = BindableProperty.Create(nameof(TitleColor), typeof(Color), typeof(LabeledPicker), Color.FromArgb("#808080"), propertyChanged: TitleColorChanged);
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(LabeledPicker), LabelBase.DefaultFontSize, propertyChanged: FontSizeChanged);
-    public static readonly BindableProperty ItemDisplayBindingProperty = BindableProperty.Create(nameof(ItemDisplayBinding), typeof(BindingBase), typeof(LabeledPicker), propertyChanged: ItemDisplayBindingChanged);
 
     public int SelectedIndex
     {
@@ -62,19 +61,20 @@ public partial class LabeledPicker
         set => SetValue(FontSizeProperty, value);
     }
 
+    // Deliberately a plain CLR property, mirroring MAUI's Picker.ItemDisplayBinding: as a
+    // BindableProperty, XAML applies "{Binding X}" against the BindingContext instead of
+    // assigning the binding itself, so the inner picker never receives it (#37).
     public BindingBase ItemDisplayBinding
     {
-        get => (BindingBase)GetValue(ItemDisplayBindingProperty);
-        set => SetValue(ItemDisplayBindingProperty, value);
+        get => Element.ItemDisplayBinding;
+        set => Element.ItemDisplayBinding = value;
     }
 
     private static void PlaceholderChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdatePlaceholder();
     private static void TitleColorChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateTitleColorView();
     private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateFontSizeView();
-    private static void ItemDisplayBindingChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledPicker)bindable).UpdateItemDisplayBinding();
 
     private void UpdatePlaceholder() => Element.Title = Placeholder;
     private void UpdateFontSizeView() => Element.FontSize = FontSize;
     private void UpdateTitleColorView() => Element.TitleColor = TitleColor;
-    private void UpdateItemDisplayBinding() => Element.ItemDisplayBinding = ItemDisplayBinding;
 }
