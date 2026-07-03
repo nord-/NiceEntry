@@ -17,9 +17,12 @@ dotnet build NiceEntryDemoApp/NiceEntryDemoApp.csproj
 
 # Create NuGet package (outputs to ./nupkgs/)
 dotnet pack NiceEntry/NiceEntry.csproj
+
+# Run tests (xunit.v3, plain net10.0 — no MAUI workload needed)
+dotnet test NiceEntry.Tests/NiceEntry.Tests.csproj
 ```
 
-No test project exists currently.
+**NiceEntry.Tests** covers the pure path geometry in `Drawing/NotchedBorderDrawing` by linking the source file directly — it tests without referencing the MAUI library. UI behavior is verified manually via the demo app.
 
 ## Architecture
 
