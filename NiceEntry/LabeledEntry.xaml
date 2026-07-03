@@ -4,7 +4,8 @@
               x:Class="NiceEntry.LabeledEntry">
     
     <ne:LabelBase.View>
-        <!-- ReSharper disable once Xaml.RedundantModifiersAttribute: default field modifier for this project's XAML SourceGen is 'private'; LabeledAutoCompleteEntry.xaml.cs needs cross-class access to Element -->
+        <!-- Default field modifier i det här projektets XAML SourceGen är 'private' (verifierat: bygget felar utan attributet); LabeledAutoCompleteEntry.xaml.cs når Element cross-class -->
+        <!-- ReSharper disable once Xaml.RedundantModifiersAttribute -->
         <ne:EntryBase x:Name="Element" x:FieldModifier="internal" />
     </ne:LabelBase.View>
     

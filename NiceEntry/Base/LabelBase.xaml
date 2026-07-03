@@ -5,7 +5,8 @@
       x:Class="NiceEntry.LabelBase"
       Padding="0,7,0,0"
       RowDefinitions="Auto,Auto,Auto">
-    <!-- ReSharper disable Xaml.StaticResourceNotResolved: nycklarna kommer från konsumentappens MAUI-mall-resurser -->
+    <!-- Nycklarna kommer från konsumentappens MAUI-mall-resurser -->
+    <!-- ReSharper disable Xaml.StaticResourceNotResolved -->
 <Grid.Resources>
     <ResourceDictionary>
         <Style x:Key="BaseLabel" TargetType="Label">
