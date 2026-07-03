@@ -30,6 +30,12 @@ jobs:
           tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      - name: Get highest published NuGet version
+        id: nuget_version
+        run: |
+          highest=$(curl -sf "https://api.nuget.org/v3-flatcontainer/niceentry/index.json" 2>/dev/null | jq -r '.versions[]' 2>/dev/null | sort -V | tail -1) || true
+          echo "version=${highest:-0.0.0}" >> "$GITHUB_OUTPUT"
+
       - name: Determine bump type from PR labels
         id: bump
         run: |
@@ -45,8 +51,10 @@ jobs:
       - name: Calculate new version
         id: version
         run: |
-          current="${{ steps.latest_tag.outputs.tag }}"
-          current="${current#v}"
+          tag_version="${{ steps.latest_tag.outputs.tag }}"
+          tag_version="${tag_version#v}"
+          nuget_version="${{ steps.nuget_version.outputs.version }}"
+          current=$(printf '%s\n%s\n' "$tag_version" "$nuget_version" | sort -V | tail -1)
           IFS='.' read -r major minor patch <<< "$current"
 
           case "${{ steps.bump.outputs.type }}" in
