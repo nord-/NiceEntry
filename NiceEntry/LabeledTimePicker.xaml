@@ -1,10 +1,28 @@
-<ne:LabelBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ne:LabelBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
               xmlns:ne="clr-namespace:NiceEntry"
               x:Class="NiceEntry.LabeledTimePicker">
-    
+
     <ne:LabelBase.View>
-        <ne:TimePickerBase x:Name="Element" />
+        <Grid ColumnDefinitions="*,Auto">
+            <ne:TimePickerBase x:Name="Element" />
+            <Label x:Name="ClearButton"
+                   Grid.Column="1"
+                   Text="&#x2715;"
+                   IsVisible="False"
+                   FontSize="16"
+                   Opacity="0.6"
+                   VerticalOptions="Fill"
+                   MinimumWidthRequest="44"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                   SemanticProperties.Description="Clear">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnClearTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
     </ne:LabelBase.View>
-    
+
 </ne:LabelBase>
