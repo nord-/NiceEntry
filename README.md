@@ -29,6 +29,8 @@ Labeled input controls for .NET MAUI with built-in validation, required field in
 
 ## Installation
 
+Get the package from [NuGet](https://www.nuget.org/packages/NiceEntry/):
+
 ```bash
 dotnet add package NiceEntry
 ```
