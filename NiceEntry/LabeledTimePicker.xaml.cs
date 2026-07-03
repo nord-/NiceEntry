@@ -1,4 +1,4 @@
-﻿namespace NiceEntry;
+namespace NiceEntry;
 
 public partial class LabeledTimePicker
 {
