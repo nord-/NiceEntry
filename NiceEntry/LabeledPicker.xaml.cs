@@ -64,7 +64,7 @@ public partial class LabeledPicker
     // Deliberately a plain CLR property, mirroring MAUI's Picker.ItemDisplayBinding: as a
     // BindableProperty, XAML applies "{Binding X}" against the BindingContext instead of
     // assigning the binding itself, so the inner picker never receives it (#37).
-    public BindingBase ItemDisplayBinding
+    public BindingBase? ItemDisplayBinding
     {
         get => Element.ItemDisplayBinding;
         set => Element.ItemDisplayBinding = value;
