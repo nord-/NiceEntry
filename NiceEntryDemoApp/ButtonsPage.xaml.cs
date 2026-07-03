@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace NiceEntryDemoApp;
 
-public partial class ButtonsPage : ContentPage
+public partial class ButtonsPage
 {
     public ButtonsPage()
     {

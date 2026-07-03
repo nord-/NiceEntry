@@ -1,5 +1,3 @@
-using Microsoft.Maui.Hosting;
-
 namespace NiceEntry;
 
 public static class AppHostBuilderExtensions

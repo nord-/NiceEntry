@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Handlers;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntry.Platforms.Android;
 
 internal class EntryBaseNative : Entry

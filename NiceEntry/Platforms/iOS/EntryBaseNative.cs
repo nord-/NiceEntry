@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Handlers;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntry.Platforms.iOS;
 
 internal class EntryBaseNative : Entry

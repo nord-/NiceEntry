@@ -2,6 +2,7 @@
               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
               xmlns:ne="clr-namespace:NiceEntry"
               x:Class="NiceEntry.LabeledDatePicker">
+    <!-- ReSharper disable Xaml.StaticResourceNotResolved: nycklarna kommer från konsumentappens MAUI-mall-resurser -->
 
     <ne:LabelBase.View>
         <Grid ColumnDefinitions="*,Auto">

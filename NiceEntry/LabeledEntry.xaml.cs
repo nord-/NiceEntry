@@ -117,6 +117,7 @@ public partial class LabeledEntry
         if (!SelectAllOnFocus) return;
 
         Element.CursorPosition = 0;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         Element.SelectionLength = Element.Text?.Length ?? 0;
     }
 
