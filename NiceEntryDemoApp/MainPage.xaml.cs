@@ -24,8 +24,8 @@ public partial class MainViewModel : ValidatableViewModel
     [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = $"{nameof(MyProperty)} is required"),MinLength(3, ErrorMessage = "Minimum 3 chars")] 
     private string _myProperty = "";
 
-    [ObservableProperty] private DateTime? _dateSelected = DateTime.Today;
-    [ObservableProperty] private TimeSpan? _timeSelected = DateTime.Now.TimeOfDay;
+    [ObservableProperty] private DateTime? _dateSelected;
+    [ObservableProperty,NotifyDataErrorInfo,Required(ErrorMessage = "You have to pick a time")] private TimeSpan? _timeSelected;
     [ObservableProperty,Required(ErrorMessage = "You have to pick an item")] private PickerItem? _pickedItem;
 
     [ObservableProperty] private string _icaoText = "";
