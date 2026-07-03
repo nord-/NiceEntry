@@ -470,6 +470,14 @@ Kräver emulator/enhet — utförs av Rickard eller på begäran:
 4. Clear-knapp: syns bara med värde + `ShowClearButton` + enabled; tap → tomt igen; disablad kontroll döljer ✕
 5. TwoWay-binding: sätt/nollställ värde från VM → UI följer åt båda håll
 6. `IsRequired` + validering med nullable VM-properties (demo-appens time-fält)
-7. Skärmläsare: fältets etikett annonseras på pickern, ✕ annonseras som "Clear"
+7. Skärmläsare: fältets etikett annonseras på pickern, ✕ annonseras som "Clear".
+   **Bevaka särskilt dubbelannonsering:** `LabelBase.UpdateSemanticDescription` sätter
+   etiketten på `View` (= Grid-wrappern) samtidigt som code-behind binder samma text
+   till pickern — på Android kan en ViewGroup med contentDescription dubbelannonsera
+   eller skugga ✕:ets "Clear". Felar detta ligger fixen i `LabelBase` (skippa
+   description när `View` är en layout), inte i picker-kontrollerna.
+8. ✕:ets träffyta på iOS: 44 pt bred men bara innehållshög (~25–30 pt) — medvetet
+   spec-beslut (ingen `MinimumHeightRequest` för att inte blåsa upp kontrollen), men
+   känn på den i emulatorn och ompröva om den upplevs för snål.
 
 PR:en märks med label **major** innan merge.
