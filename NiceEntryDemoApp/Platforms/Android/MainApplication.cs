@@ -1,6 +1,7 @@
 using Android.App;
 using Android.Runtime;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntryDemoApp;
 
 [Application]

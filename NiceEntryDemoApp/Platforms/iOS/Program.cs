@@ -1,5 +1,6 @@
 using UIKit;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntryDemoApp;
 
 public class Program
