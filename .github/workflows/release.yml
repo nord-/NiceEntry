@@ -30,6 +30,20 @@ jobs:
           tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      - name: Get highest published NuGet version
+        id: nuget_version
+        run: |
+          http_code=$(curl -s --max-time 15 -o /tmp/nuget-versions.json -w '%{http_code}' "https://api.nuget.org/v3-flatcontainer/niceentry/index.json")
+          if [ "$http_code" = "404" ]; then
+            highest="0.0.0"
+          elif [ "$http_code" != "200" ]; then
+            echo "::error::NuGet version lookup failed (HTTP $http_code) - refusing to fall back silently to git tags only" >&2
+            exit 1
+          else
+            highest=$(jq -r '.versions[]' /tmp/nuget-versions.json | sort -V | tail -1)
+          fi
+          echo "version=$highest" >> "$GITHUB_OUTPUT"
+
       - name: Determine bump type from PR labels
         id: bump
         run: |
@@ -45,8 +59,10 @@ jobs:
       - name: Calculate new version
         id: version
         run: |
-          current="${{ steps.latest_tag.outputs.tag }}"
-          current="${current#v}"
+          tag_version="${{ steps.latest_tag.outputs.tag }}"
+          tag_version="${tag_version#v}"
+          nuget_version="${{ steps.nuget_version.outputs.version }}"
+          current=$(printf '%s\n%s\n' "$tag_version" "$nuget_version" | sort -V | tail -1)
           IFS='.' read -r major minor patch <<< "$current"
 
           case "${{ steps.bump.outputs.type }}" in
