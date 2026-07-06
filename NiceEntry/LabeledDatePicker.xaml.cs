@@ -69,7 +69,11 @@ public partial class LabeledDatePicker
 
     private void UpdateMinimumDateView() => Element.MinimumDate = MinimumDate;
     private void UpdateMaximumDateView() => Element.MaximumDate = MaximumDate;
-    private void UpdateFontSizeView() => Element.FontSize = FontSize;
+    private void UpdateFontSizeView()
+    {
+        Element.FontSize = FontSize;
+        ClearButton.FontSize = FontSize;
+    }
     private void UpdateClearButtonView() => ClearButton.IsVisible = ShowClearButton && Date is not null && IsEnabled;
 
     private void OnClearTapped(object? sender, TappedEventArgs e) => Date = null;

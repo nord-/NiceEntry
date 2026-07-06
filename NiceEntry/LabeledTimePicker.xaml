@@ -12,7 +12,6 @@
                    Grid.Column="1"
                    Text="&#x2715;"
                    IsVisible="False"
-                   FontSize="16"
                    Opacity="0.6"
                    VerticalOptions="Fill"
                    MinimumWidthRequest="44"

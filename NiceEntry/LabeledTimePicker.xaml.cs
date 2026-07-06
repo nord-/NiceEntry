@@ -51,7 +51,11 @@ public partial class LabeledTimePicker
     private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledTimePicker)bindable).UpdateFontSizeView();
     private static void ShowClearButtonChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledTimePicker)bindable).UpdateClearButtonView();
 
-    private void UpdateFontSizeView() => Element.FontSize = FontSize;
+    private void UpdateFontSizeView()
+    {
+        Element.FontSize = FontSize;
+        ClearButton.FontSize = FontSize;
+    }
     private void UpdateClearButtonView() => ClearButton.IsVisible = ShowClearButton && Time is not null && IsEnabled;
 
     private void OnClearTapped(object? sender, TappedEventArgs e) => Time = null;
