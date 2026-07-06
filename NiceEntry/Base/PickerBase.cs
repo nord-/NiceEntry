@@ -15,7 +15,7 @@ internal class PickerBase : Picker
         PickerHandler.Mapper.AppendToMapping("NiceEntryPicker", (handler, view) =>
         {
             if (view is PickerBase)
-                handler.PlatformView.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
+                handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
         });
     }
 #elif IOS

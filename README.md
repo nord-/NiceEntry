@@ -100,14 +100,31 @@ Bind `Error` to an `IReadOnlyCollection<string>` — when non-empty, the border 
 
 ### Date and time pickers
 
+`Date` and `Time` are nullable — the field renders empty until a value is picked
+(or set from the view model). Set `ShowClearButton="True"` to show a ✕ that resets
+the value to `null`.
+
 ```xml
 <nice:LabeledDatePicker Label="Select a date"
-                        Date="{Binding SelectedDate}" />
+                        Date="{Binding SelectedDate}"
+                        ShowClearButton="True" />
 
 <nice:LabeledTimePicker Label="Select a time"
                         Time="{Binding SelectedTime}"
                         IsRequired="True" />
 ```
+
+> **Breaking change (2.0):** `LabeledDatePicker.Date` is now `DateTime?` (default `null`,
+> previously `DateTime.Today`) and `LabeledTimePicker.Time` is now `TimeSpan?` (default
+> `null`). Bind to nullable view-model properties, and set an initial value
+> (e.g. `Date = DateTime.Today`) to keep the previous behavior.
+
+Platform notes:
+
+- **Android:** the value commits when the user taps OK; Cancel keeps the field empty.
+- **iOS:** the displayed value commits when the picker closes (Done), even if the user
+  didn't scroll — opened means selected.
+- A time picker opened from the empty state starts at 00:00 (MAUI default).
 
 ### Auto-complete entry
 

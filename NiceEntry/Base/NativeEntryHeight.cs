@@ -17,9 +17,9 @@ internal static class NativeEntryHeight
         var key = fontSize > 0 ? fontSize : 0;
         if (Cache.TryGetValue(key, out var height)) return height;
 
-        using var reference = new UITextField { BorderStyle = UITextBorderStyle.None };
-        if (key > 0)
-            reference.Font = UIFont.SystemFontOfSize((nfloat)key);
+        using var reference = key > 0
+            ? new UITextField { BorderStyle = UITextBorderStyle.None, Font = UIFont.SystemFontOfSize((nfloat)key) }
+            : new UITextField { BorderStyle = UITextBorderStyle.None };
 
         var size = reference.SizeThatFits(new CoreGraphics.CGSize(nfloat.MaxValue, nfloat.MaxValue));
         Cache[key] = size.Height;

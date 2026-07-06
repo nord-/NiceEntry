@@ -172,10 +172,10 @@ public class NiceButton : Layout
         nameof(Text), typeof(string), typeof(NiceButton), string.Empty, propertyChanged: TextChanged);
 
     public static readonly BindableProperty IconProperty = BindableProperty.Create(
-        nameof(Icon), typeof(MaterialIcon?), typeof(NiceButton), null, propertyChanged: IconChanged);
+        nameof(Icon), typeof(MaterialIcon?), typeof(NiceButton), propertyChanged: IconChanged);
 
     public static readonly BindableProperty SemanticDescriptionProperty = BindableProperty.Create(
-        nameof(SemanticDescription), typeof(string), typeof(NiceButton), null, propertyChanged: SemanticDescriptionChanged);
+        nameof(SemanticDescription), typeof(string), typeof(NiceButton), propertyChanged: SemanticDescriptionChanged);
 
     public static readonly BindableProperty OrientationProperty = BindableProperty.Create(
         nameof(Orientation), typeof(ButtonContentOrientation), typeof(NiceButton),
@@ -196,14 +196,14 @@ public class NiceButton : Layout
         nameof(FontSize), typeof(double), typeof(NiceButton), DefaultFontSize, propertyChanged: FontSizeChanged);
 
     public static readonly BindableProperty FontFamilyProperty = BindableProperty.Create(
-        nameof(FontFamily), typeof(string), typeof(NiceButton), null, propertyChanged: FontFamilyChanged);
+        nameof(FontFamily), typeof(string), typeof(NiceButton), propertyChanged: FontFamilyChanged);
 
     public static readonly BindableProperty FontAttributesProperty = BindableProperty.Create(
         nameof(FontAttributes), typeof(FontAttributes), typeof(NiceButton),
         FontAttributes.None, propertyChanged: FontAttributesChanged);
 
     public static readonly BindableProperty LineBreakModeProperty = BindableProperty.Create(
-        nameof(LineBreakMode), typeof(Microsoft.Maui.LineBreakMode?), typeof(NiceButton), null,
+        nameof(LineBreakMode), typeof(LineBreakMode?), typeof(NiceButton),
         propertyChanged: LineBreakModeChanged);
 
     public static readonly BindableProperty IconSizeProperty = BindableProperty.Create(
@@ -217,10 +217,10 @@ public class NiceButton : Layout
         nameof(CornerRadius), typeof(double), typeof(NiceButton), 8.0, propertyChanged: ShapeChanged);
 
     public static readonly BindableProperty TextColorProperty = BindableProperty.Create(
-        nameof(TextColor), typeof(Color), typeof(NiceButton), null, propertyChanged: ColorChanged);
+        nameof(TextColor), typeof(Color), typeof(NiceButton), propertyChanged: ColorChanged);
 
     public static readonly BindableProperty BorderColorProperty = BindableProperty.Create(
-        nameof(BorderColor), typeof(Color), typeof(NiceButton), null, propertyChanged: BorderStrokeChanged);
+        nameof(BorderColor), typeof(Color), typeof(NiceButton), propertyChanged: BorderStrokeChanged);
 
     public static readonly BindableProperty BorderWidthProperty = BindableProperty.Create(
         nameof(BorderWidth), typeof(double), typeof(NiceButton), 0.0, propertyChanged: BorderStrokeChanged);
@@ -229,19 +229,19 @@ public class NiceButton : Layout
         nameof(HasShadow), typeof(bool), typeof(NiceButton), false, propertyChanged: ShadowChanged);
 
     public static readonly BindableProperty CustomShadowProperty = BindableProperty.Create(
-        nameof(CustomShadow), typeof(Shadow), typeof(NiceButton), null, propertyChanged: ShadowChanged);
+        nameof(CustomShadow), typeof(Shadow), typeof(NiceButton), propertyChanged: ShadowChanged);
 
     public static readonly BindableProperty DisabledBackgroundColorProperty = BindableProperty.Create(
-        nameof(DisabledBackgroundColor), typeof(Color), typeof(NiceButton), null, propertyChanged: ColorChanged);
+        nameof(DisabledBackgroundColor), typeof(Color), typeof(NiceButton), propertyChanged: ColorChanged);
 
     public static readonly BindableProperty DisabledTextColorProperty = BindableProperty.Create(
-        nameof(DisabledTextColor), typeof(Color), typeof(NiceButton), null, propertyChanged: ColorChanged);
+        nameof(DisabledTextColor), typeof(Color), typeof(NiceButton), propertyChanged: ColorChanged);
 
     public static readonly BindableProperty CommandProperty = BindableProperty.Create(
-        nameof(Command), typeof(ICommand), typeof(NiceButton), null, propertyChanged: CommandChanged);
+        nameof(Command), typeof(ICommand), typeof(NiceButton), propertyChanged: CommandChanged);
 
     public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(
-        nameof(CommandParameter), typeof(object), typeof(NiceButton), null, propertyChanged: CommandParameterChanged);
+        nameof(CommandParameter), typeof(object), typeof(NiceButton), propertyChanged: CommandParameterChanged);
 
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
     public MaterialIcon? Icon { get => (MaterialIcon?)GetValue(IconProperty); set => SetValue(IconProperty, value); }
@@ -258,16 +258,16 @@ public class NiceButton : Layout
     public double FontSize { get => (double)GetValue(FontSizeProperty); set => SetValue(FontSizeProperty, value); }
     public string FontFamily { get => (string)GetValue(FontFamilyProperty); set => SetValue(FontFamilyProperty, value); }
     public FontAttributes FontAttributes { get => (FontAttributes)GetValue(FontAttributesProperty); set => SetValue(FontAttributesProperty, value); }
-    public Microsoft.Maui.LineBreakMode? LineBreakMode
+    public LineBreakMode? LineBreakMode
     {
-        get => (Microsoft.Maui.LineBreakMode?)GetValue(LineBreakModeProperty);
+        get => (LineBreakMode?)GetValue(LineBreakModeProperty);
         set => SetValue(LineBreakModeProperty, value);
     }
     public double IconSize { get => (double)GetValue(IconSizeProperty); set => SetValue(IconSizeProperty, value); }
     public ButtonShape ButtonShape { get => (ButtonShape)GetValue(ButtonShapeProperty); set => SetValue(ButtonShapeProperty, value); }
     public double CornerRadius { get => (double)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
-    public Color TextColor { get => (Color)GetValue(TextColorProperty); set => SetValue(TextColorProperty, value); }
-    public Color BorderColor { get => (Color)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
+    public Color? TextColor { get => (Color?)GetValue(TextColorProperty); set => SetValue(TextColorProperty, value); }
+    public Color? BorderColor { get => (Color?)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
     public double BorderWidth { get => (double)GetValue(BorderWidthProperty); set => SetValue(BorderWidthProperty, value); }
     public bool HasShadow { get => (bool)GetValue(HasShadowProperty); set => SetValue(HasShadowProperty, value); }
 
@@ -277,13 +277,13 @@ public class NiceButton : Layout
     /// Layout root is transparent, so a shadow set on it would not be visible; only the inner
     /// border (set via this property) renders a shadow.
     /// </summary>
-    public Shadow CustomShadow { get => (Shadow)GetValue(CustomShadowProperty); set => SetValue(CustomShadowProperty, value); }
+    public Shadow? CustomShadow { get => (Shadow?)GetValue(CustomShadowProperty); set => SetValue(CustomShadowProperty, value); }
 
-    public Color DisabledBackgroundColor { get => (Color)GetValue(DisabledBackgroundColorProperty); set => SetValue(DisabledBackgroundColorProperty, value); }
-    public Color DisabledTextColor { get => (Color)GetValue(DisabledTextColorProperty); set => SetValue(DisabledTextColorProperty, value); }
+    public Color? DisabledBackgroundColor { get => (Color?)GetValue(DisabledBackgroundColorProperty); set => SetValue(DisabledBackgroundColorProperty, value); }
+    public Color? DisabledTextColor { get => (Color?)GetValue(DisabledTextColorProperty); set => SetValue(DisabledTextColorProperty, value); }
 
-    public ICommand Command { get => (ICommand)GetValue(CommandProperty); set => SetValue(CommandProperty, value); }
-    public object CommandParameter { get => GetValue(CommandParameterProperty); set => SetValue(CommandParameterProperty, value); }
+    public ICommand? Command { get => (ICommand?)GetValue(CommandProperty); set => SetValue(CommandProperty, value); }
+    public object? CommandParameter { get => GetValue(CommandParameterProperty); set => SetValue(CommandParameterProperty, value); }
 
     private static void CommandChanged(BindableObject b, object oldValue, object newValue)
     {
@@ -299,7 +299,7 @@ public class NiceButton : Layout
     protected override void OnHandlerChanged()
     {
         base.OnHandlerChanged();
-        if (Command is ICommand cmd)
+        if (Command is { } cmd)
         {
             cmd.CanExecuteChanged -= OnCanExecuteChanged;
             if (Handler is not null)
@@ -348,7 +348,7 @@ public class NiceButton : Layout
         var btn = (NiceButton)b;
         if ((o is MaterialIcon) == (n is MaterialIcon))
         {
-            btn._iconLabel.Text = n is MaterialIcon icon ? char.ConvertFromUtf32((int)icon) : null;
+            btn._iconLabel.Text = n is MaterialIcon icon ? char.ConvertFromUtf32((int)icon) : string.Empty;
             btn.InvalidateMeasure();
         }
         else
@@ -383,7 +383,7 @@ public class NiceButton : Layout
     private void UpdateFontFamilyView() => _textLabel.FontFamily = FontFamily;
     private void UpdateFontAttributesView() => _textLabel.FontAttributes = FontAttributes;
 
-    internal Microsoft.Maui.LineBreakMode EffectiveLineBreakMode =>
+    internal LineBreakMode EffectiveLineBreakMode =>
         LineBreakMode ?? (Orientation == ButtonContentOrientation.Vertical
             ? Microsoft.Maui.LineBreakMode.WordWrap
             : Microsoft.Maui.LineBreakMode.TailTruncation);
@@ -399,7 +399,7 @@ public class NiceButton : Layout
         {
             ButtonShape.Rectangle => new Rectangle(),
             ButtonShape.Circle => new Ellipse(),
-            _ => new RoundRectangle { CornerRadius = new Microsoft.Maui.CornerRadius(CornerRadius) }
+            _ => new RoundRectangle { CornerRadius = new CornerRadius(CornerRadius) }
         };
     }
 
@@ -407,6 +407,7 @@ public class NiceButton : Layout
     {
         // Guard: Background = Brush.Transparent in the constructor fires OnPropertyChanged
         // synchronously before _border is assigned.
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (_border is null) return;
 
         if (!IsEnabled || !_commandEnabled)
@@ -544,7 +545,7 @@ public class NiceButton : Layout
         _contentHost.RowDefinitions.Clear();
         _contentHost.ColumnDefinitions.Clear();
 
-        _iconLabel.Text = Icon.HasValue ? char.ConvertFromUtf32((int)Icon.Value) : null;
+        _iconLabel.Text = Icon.HasValue ? char.ConvertFromUtf32((int)Icon.Value) : string.Empty;
         _textLabel.Text = Text;
 
         var hasIcon = Icon.HasValue;
@@ -575,8 +576,8 @@ public class NiceButton : Layout
                 _contentHost.RowSpacing = 0;
                 _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
                 _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
-                _contentHost.Add(first, 0, 0);
-                _contentHost.Add(second, 1, 0);
+                _contentHost.Add(first, 0);
+                _contentHost.Add(second, 1);
             }
             else
             {
@@ -586,7 +587,7 @@ public class NiceButton : Layout
                 _contentHost.ColumnSpacing = 0;
                 _contentHost.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
                 _contentHost.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
-                _contentHost.Add(first, 0, 0);
+                _contentHost.Add(first, 0);
                 _contentHost.Add(second, 0, 1);
             }
         }
@@ -597,7 +598,7 @@ public class NiceButton : Layout
             _contentHost.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
 
             var only = hasIcon ? (View)_iconLabel : _textLabel;
-            _contentHost.Add(only, 0, 0);
+            _contentHost.Add(only, 0);
         }
 
         UpdateLineBreakModeView();

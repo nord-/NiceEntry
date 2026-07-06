@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -17,7 +17,7 @@ public abstract class ValidatableViewModel : ObservableValidator, IValidatableVi
     {
         ValidationErrors = new ValidationErrors(this);
     }
-    
+
     public ValidationErrors ValidationErrors { get; }
     public bool IsValid => ValidationErrors.IsValid;
 
@@ -25,7 +25,7 @@ public abstract class ValidatableViewModel : ObservableValidator, IValidatableVi
     {
         ValidateAllProperties();
         OnPropertyChanged(nameof(ValidationErrors));
-        
+
     }
 }
 

@@ -54,13 +54,15 @@
         <ne:LabeledDatePicker Label="Select a date"
                               Date="{Binding DateSelected}"
                               MinimumDate="2025-05-01"
-                              Example="Test"
+                              ShowClearButton="True"
+                              Example="Starts empty — pick a date, clear with the cross"
                               Error="{Binding ValidationErrors[DateSelected]}" />
 
         <ne:LabeledTimePicker Label="Select a time"
                               Time="{Binding TimeSelected}"
                               IsRequired="True"
-                              Error="{Binding ValidationErrors[TimeSelected]}" 
+                              ShowClearButton="True"
+                              Error="{Binding ValidationErrors[TimeSelected]}"
                               />
 
         <ne:LabeledPicker Label="Select from list"

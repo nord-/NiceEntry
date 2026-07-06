@@ -1,7 +1,8 @@
-﻿using ObjCRuntime;
 using UIKit;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntryDemoApp;
+
 public class Program
 {
     // This is the main entry point of the application.

@@ -2,9 +2,28 @@
               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
               xmlns:ne="clr-namespace:NiceEntry"
               x:Class="NiceEntry.LabeledDatePicker">
-    
+    <!-- Nycklarna kommer från konsumentappens MAUI-mall-resurser -->
+    <!-- ReSharper disable Xaml.StaticResourceNotResolved -->
+
     <ne:LabelBase.View>
-        <ne:DatePickerBase x:Name="Element" />
+        <Grid ColumnDefinitions="*,Auto">
+            <ne:DatePickerBase x:Name="Element" />
+            <Label x:Name="ClearButton"
+                   Grid.Column="1"
+                   Text="&#x2715;"
+                   IsVisible="False"
+                   Opacity="0.6"
+                   VerticalOptions="Fill"
+                   MinimumWidthRequest="44"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                   SemanticProperties.Description="Clear">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnClearTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
     </ne:LabelBase.View>
-    
+
 </ne:LabelBase>

@@ -15,7 +15,7 @@ internal class DatePickerBase : DatePicker
         DatePickerHandler.Mapper.AppendToMapping("NiceEntryDatePicker", (handler, view) =>
         {
             if (view is DatePickerBase)
-                handler.PlatformView.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
+                handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
         });
     }
 #elif IOS

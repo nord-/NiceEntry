@@ -1,7 +1,9 @@
-﻿using Android.App;
+using Android.App;
 using Android.Runtime;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntryDemoApp;
+
 [Application]
 public class MainApplication : MauiApplication
 {

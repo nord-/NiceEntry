@@ -8,7 +8,7 @@ public partial class LabeledAutoCompleteEntry
 {
     private static readonly DataTemplate DefaultSuggestionTemplate = new(() =>
     {
-        var label = new Microsoft.Maui.Controls.Label
+        var label = new Label
         {
             Padding = new Thickness(8, 4),
             VerticalOptions = LayoutOptions.Center
@@ -165,9 +165,9 @@ public partial class LabeledAutoCompleteEntry
     public Keyboard Keyboard { get => (Keyboard)GetValue(KeyboardProperty); set => SetValue(KeyboardProperty, value); }
     public int MaxLength { get => (int)GetValue(MaxLengthProperty); set => SetValue(MaxLengthProperty, value); }
     public TextAlignment HorizontalTextAlignment { get => (TextAlignment)GetValue(HorizontalTextAlignmentProperty); set => SetValue(HorizontalTextAlignmentProperty, value); }
-    public IEnumerable Suggestions { get => (IEnumerable)GetValue(SuggestionsProperty); set => SetValue(SuggestionsProperty, value); }
+    public IEnumerable? Suggestions { get => (IEnumerable?)GetValue(SuggestionsProperty); set => SetValue(SuggestionsProperty, value); }
     public int MaxSuggestions { get => (int)GetValue(MaxSuggestionsProperty); set => SetValue(MaxSuggestionsProperty, value); }
-    public DataTemplate SuggestionTemplate { get => (DataTemplate)GetValue(SuggestionTemplateProperty); set => SetValue(SuggestionTemplateProperty, value); }
+    public DataTemplate? SuggestionTemplate { get => (DataTemplate?)GetValue(SuggestionTemplateProperty); set => SetValue(SuggestionTemplateProperty, value); }
     public bool CommitOnUpperCase { get => (bool)GetValue(CommitOnUpperCaseProperty); set => SetValue(CommitOnUpperCaseProperty, value); }
     public Func<object, string>? SuggestionTextSelector { get => (Func<object, string>?)GetValue(SuggestionTextSelectorProperty); set => SetValue(SuggestionTextSelectorProperty, value); }
     public double FontSize { get => (double)GetValue(FontSizeProperty); set => SetValue(FontSizeProperty, value); }

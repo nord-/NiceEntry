@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NiceEntry;
 
 namespace NiceEntryDemoApp;
+
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()

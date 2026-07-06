@@ -1,4 +1,4 @@
-﻿
+
 #if ANDROID
 using NiceEntry.Platforms.Android;
 #elif IOS 

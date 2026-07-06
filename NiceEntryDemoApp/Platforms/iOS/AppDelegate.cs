@@ -1,6 +1,8 @@
-﻿using Foundation;
+using Foundation;
 
+// ReSharper disable once CheckNamespace
 namespace NiceEntryDemoApp;
+
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
 {

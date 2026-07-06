@@ -26,7 +26,7 @@ public partial class LabeledEntry
         UpdateFontSizeView();
         UpdatePlaceholderColorView();
     }
-    
+
     public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(LabeledEntry), defaultBindingMode: BindingMode.TwoWay);
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(LabeledEntry), propertyChanged: PlaceholderChanged);
     public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(nameof(PlaceholderColor), typeof(Color), typeof(LabeledEntry), Color.FromArgb("#808080"), propertyChanged: PlaceholderColorChanged);
@@ -63,7 +63,7 @@ public partial class LabeledEntry
         get => (int)GetValue(MaxLengthProperty);
         set => SetValue(MaxLengthProperty, value);
     }
- 
+
     public ReturnType ReturnType
     {
         get => (ReturnType)GetValue(ReturnTypeProperty);
@@ -117,6 +117,7 @@ public partial class LabeledEntry
         if (!SelectAllOnFocus) return;
 
         Element.CursorPosition = 0;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         Element.SelectionLength = Element.Text?.Length ?? 0;
     }
 
@@ -127,10 +128,10 @@ public partial class LabeledEntry
     private static void IsPasswordChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateIsPasswordView();
     private static void IsReadOnlyChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateIsReadOnlyView();
     private static void MaxLengthChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateMaxLengthView();
-    private static void ReturnCommandChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateReturnCommandView();    
+    private static void ReturnCommandChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateReturnCommandView();
     private static void HorizontalTextAlignmentChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateHorizontalTextAlignmentView();
     private static void FontSizeChanged(BindableObject bindable, object oldValue, object newValue) => ((LabeledEntry)bindable).UpdateFontSizeView();
-    
+
     private void UpdatePlaceholderView() => Element.Placeholder = Placeholder;
     private void UpdatePlaceholderColorView() => Element.PlaceholderColor = PlaceholderColor;
     private void UpdateKeyboardView() => Element.Keyboard = Keyboard;

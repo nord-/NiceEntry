@@ -1,3 +1,4 @@
+// ReSharper disable once RedundantUsingDirective -- filen länkas av NiceEntry.Tests som saknar MAUI:s globala usings
 using Microsoft.Maui.Graphics;
 
 namespace NiceEntry.Drawing;

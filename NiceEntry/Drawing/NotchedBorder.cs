@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Microsoft.Maui.Graphics;
 
 namespace NiceEntry.Drawing;
 
@@ -84,7 +83,6 @@ public class NotchedBorder : ContentView, IDrawable
 
     private readonly GraphicsView _graphicsView;
     private readonly Grid _contentHost;
-    private readonly Grid _root;
 
     private Color _strokeColor = Colors.Gray;
     private float _strokeThickness = 1f;
@@ -100,10 +98,10 @@ public class NotchedBorder : ContentView, IDrawable
             InputTransparent = true
         };
         _contentHost = new Grid();
-        _root = new Grid();
-        _root.Add(_graphicsView);
-        _root.Add(_contentHost);
-        base.Content = _root;
+        var root = new Grid();
+        root.Add(_graphicsView);
+        root.Add(_contentHost);
+        base.Content = root;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]

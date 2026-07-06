@@ -44,7 +44,7 @@ public partial class LabelBase
                 new ColumnDefinition(GridLength.Auto)
             }
         };
-        _contentGrid.Add(_unitLabel, 1, 0);
+        _contentGrid.Add(_unitLabel, 1);
 
         UpdateContentPaddingView();
         UpdateUnitFontSizeView();
@@ -99,10 +99,10 @@ public partial class LabelBase
         nameof(Example), typeof(string), typeof(LabelBase), propertyChanged: ExampleChanged);
 
     // CLR properties
-    public View View { get => (View)GetValue(ViewProperty); set => SetValue(ViewProperty, value); }
+    public View? View { get => (View?)GetValue(ViewProperty); set => SetValue(ViewProperty, value); }
     public bool IsRequired { get => (bool)GetValue(IsRequiredProperty); set => SetValue(IsRequiredProperty, value); }
     public string Label { get => (string)GetValue(LabelProperty); set => SetValue(LabelProperty, value); }
-    public IReadOnlyCollection<string> Error { get => (IReadOnlyCollection<string>)GetValue(ErrorProperty); set => SetValue(ErrorProperty, value); }
+    public IReadOnlyCollection<string>? Error { get => (IReadOnlyCollection<string>?)GetValue(ErrorProperty); set => SetValue(ErrorProperty, value); }
     public Thickness ContentPadding { get => (Thickness)GetValue(ContentPaddingProperty); set => SetValue(ContentPaddingProperty, value); }
     public string Unit { get => (string)GetValue(UnitProperty); set => SetValue(UnitProperty, value); }
     public string UnitFontFamily { get => (string)GetValue(UnitFontFamilyProperty); set => SetValue(UnitFontFamilyProperty, value); }
@@ -136,7 +136,7 @@ public partial class LabelBase
 
         View.VerticalOptions = LayoutOptions.Center;
         _contentGrid.Insert(0, View);
-        Grid.SetColumn((BindableObject)View, 0);
+        Grid.SetColumn(View, 0);
         BorderLabel.Content = _contentGrid;
         UpdateSemanticDescription();
         UpdateIsRequiredView();
