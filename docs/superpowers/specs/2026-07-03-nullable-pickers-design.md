@@ -13,8 +13,9 @@ och `IsRequired`-validering ska fungera naturligt (null = inget valt).
 
 ## Grundfynd: MAUI 10 har nativt nullable-stöd
 
-Projektet refererar `Microsoft.Maui.Controls 10.0.41`. Verifierat mot MAUI-källan
-(branch `release/10.0.1xx`):
+Projektet refererade `Microsoft.Maui.Controls 10.0.41` vid designtillfället
+(uppdaterad till 10.0.80 i implementations-PR:en). Verifierat mot MAUI-källan
+(branch `release/10.0.1xx`, som täcker båda versionerna):
 
 - `DatePicker.Date` är `DateTime?` (`DateProperty` skapas med `typeof(DateTime?)`);
   `TimePicker.Time` är `TimeSpan?`.

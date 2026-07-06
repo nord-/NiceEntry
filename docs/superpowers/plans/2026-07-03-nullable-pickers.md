@@ -6,7 +6,7 @@
 
 **Architecture:** MAUI 10 har redan nativt nullable-stöd i `DatePicker.Date` (`DateTime?`) och `TimePicker.Time` (`TimeSpan?`) inkl. blank rendering — de yttre proxy-propertyerna byter bara typ, den befintliga TwoWay-bindningen behålls. Clear-knappen är en ✕-Label i en Grid-wrapper runt inre pickern i respektive kontrolls XAML.
 
-**Tech Stack:** .NET MAUI 10 (Microsoft.Maui.Controls 10.0.41), net10.0-android + net10.0-ios. Inget testprojekt finns — verifiering via build + demo-app (spec:ens avsnitt "Demo & verifiering").
+**Tech Stack:** .NET MAUI 10 (Microsoft.Maui.Controls 10.0.41 vid planeringstillfället; uppdaterad till 10.0.80 under implementationen), net10.0-android + net10.0-ios. Testprojektet NiceEntry.Tests täcker endast path-geometrin i `NotchedBorderDrawing` — UI-beteendet i denna plan verifieras via build + demo-app (spec:ens avsnitt "Demo & verifiering").
 
 **Spec:** `docs/superpowers/specs/2026-07-03-nullable-pickers-design.md`
 
